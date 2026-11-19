@@ -1,0 +1,1651 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HASAN SYSTEM — Monthly Working & Salary Record Template</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- html2pdf.js (includes jsPDF & html2canvas) for Clean A4 PDF Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            navy: {
+              800: '#0f3d7a',
+              900: '#092854',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style id="ssb-core-styles">
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #eef2f6;
+      color: #0f172a;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Hide number input spinners for clean spreadsheet cells & PDF output */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    /* Table Grid Borders */
+    .meta-table td,
+    .record-table th,
+    .record-table td,
+    .summary-table td {
+      border: 1px solid #cbd5e1;
+    }
+
+    .cell-input {
+      width: 100%;
+      background: transparent;
+      outline: none;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .cell-input:focus {
+      background-color: #eff6ff;
+      box-shadow: inset 0 0 0 1.5px #2563eb;
+    }
+
+    /* Sheet-embedded Watermark */
+    .sheet-container {
+      position: relative;
+      overflow: hidden;
+    }
+    .sheet-watermark-bg {
+      position: absolute !important;
+      top: 52% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) rotate(-32deg) !important;
+      font-size: clamp(2.25rem, 8vw, 5.25rem) !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.08em !important;
+      color: rgba(15, 61, 122, 0.055) !important;
+      white-space: nowrap !important;
+      pointer-events: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      z-index: 1 !important;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    /* Fixed Viewport Tamper-Resistant Owner Watermark */
+    #ssb-owner-watermark-layer {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      pointer-events: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      z-index: 99999 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+    #ssb-owner-watermark-text {
+      font-family: 'Inter', sans-serif !important;
+      font-size: clamp(2rem, 7vw, 4.75rem) !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.08em !important;
+      color: rgba(15, 61, 122, 0.045) !important;
+      transform: rotate(-32deg) !important;
+      white-space: nowrap !important;
+      pointer-events: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    /* PDF Export Compact Mode (fits A4 Portrait cleanly) */
+    .pdf-export-mode {
+      background: #ffffff !important;
+      padding: 6px !important;
+      margin: 0 !important;
+      width: 790px !important;
+      max-width: 790px !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      border: none !important;
+    }
+    .pdf-export-mode .record-table th,
+    .pdf-export-mode .record-table td {
+      padding-top: 2px !important;
+      padding-bottom: 2px !important;
+      font-size: 9.5px !important;
+    }
+    .pdf-export-mode .meta-table td,
+    .pdf-export-mode .summary-table td {
+      padding-top: 3.5px !important;
+      padding-bottom: 3.5px !important;
+      font-size: 10.5px !important;
+    }
+    .pdf-export-mode .cell-input::placeholder {
+      color: transparent !important;
+    }
+
+    /* Native Browser Print Fallback */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #printable-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+      }
+      .cell-input::placeholder {
+        color: transparent !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen py-3 px-2 sm:px-4 md:py-5">
+
+  <!-- Locked Module Notice (triggered only if remote DB control explicitly sets enabled: false) -->
+  <div id="moduleLockedBanner" class="hidden max-w-xl mx-auto mt-10 bg-white rounded-2xl shadow-lg border border-rose-200 p-6 text-center">
+    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-xl font-black">!</div>
+    <h2 class="text-lg font-extrabold text-slate-900">Module Temporarily Disabled</h2>
+    <p class="text-sm text-slate-600 mt-1">This module has been paused from the remote Firebase control panel.</p>
+    <p class="text-xs font-bold text-slate-400 mt-4">Owner: Ssb-dev-hasan</p>
+  </div>
+
+  <!-- Main Application Wrapper -->
+  <div id="appWrapper">
+
+    <!-- ==================== TOP CONTROL PANEL (HIDDEN IN PDF/PRINT) ==================== -->
+    <header class="no-print max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-slate-200/90 p-3.5 sm:p-4 mb-4">
+      <!-- Row 1: Brand Badge + Month/Year Selector + Add New Month -->
+      <div class="flex flex-wrap items-center justify-between gap-2.5">
+        <div class="bg-[#0066e6] text-white px-3.5 py-2 rounded-xl shadow-sm select-none">
+          <div class="font-black text-sm sm:text-base leading-tight tracking-wide uppercase">HASAN SYSTEM</div>
+          <div class="text-[10px] font-semibold text-blue-100 tracking-wider">Ssb-dev-hasan</div>
+        </div>
+
+        <div class="flex-1 min-w-[165px] max-w-xs">
+          <select
+            id="monthSelector"
+            aria-label="Select Month and Year"
+            class="w-full bg-slate-100 hover:bg-slate-200/70 border border-slate-300 text-slate-900 font-bold text-sm sm:text-base rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition cursor-pointer"
+          ></select>
+        </div>
+
+        <button
+          id="openAddMonthBtn"
+          type="button"
+          class="bg-[#00a843] hover:bg-[#008f39] active:scale-[0.99] text-white font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+        >
+          <span class="text-base leading-none">+</span>
+          <span>Add New Month</span>
+        </button>
+      </div>
+
+      <!-- Row 2: Action Buttons -->
+      <div class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100">
+        <button
+          id="openHistoryBtn"
+          type="button"
+          class="bg-[#e67300] hover:bg-[#cc6600] active:scale-[0.99] text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+        >
+          <span>📜</span>
+          <span>History (<span id="historyCount">0</span>)</span>
+        </button>
+
+        <button
+          id="downloadPdfBtn"
+          type="button"
+          class="bg-[#5842e3] hover:bg-[#4832d4] active:scale-[0.99] text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+        >
+          <span>📥</span>
+          <span id="pdfBtnLabel">Download PDF</span>
+        </button>
+
+        <button
+          id="saveLocalBtn"
+          type="button"
+          class="bg-[#0066e6] hover:bg-[#0055c4] active:scale-[0.99] text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+        >
+          <span>💾</span>
+          <span>Save Data</span>
+        </button>
+
+        <button
+          id="cloudSyncBtn"
+          type="button"
+          class="bg-emerald-700 hover:bg-emerald-800 active:scale-[0.99] text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+        >
+          <span>☁️</span>
+          <span>Cloud Sync</span>
+        </button>
+
+        <button
+          id="toggleDbBarBtn"
+          type="button"
+          class="ml-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+        >
+          <span>🔗 DB Link</span>
+          <span id="dbDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+        </button>
+      </div>
+
+      <!-- Row 3: Collapsible Firebase Realtime Database Link (.json REST) Bar -->
+      <div id="dbConfigBar" class="hidden mt-3 pt-3 border-t border-slate-100 space-y-2">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+          <label for="dbUrlInput" class="text-xs font-bold text-slate-700 shrink-0">
+            Firebase Realtime DB URL:
+          </label>
+          <input
+            id="dbUrlInput"
+            type="url"
+            placeholder="https://your-project-default-rtdb.firebaseio.com"
+            class="flex-1 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <div class="flex items-center gap-1.5">
+            <button
+              id="cloudLoadBtn"
+              type="button"
+              class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer"
+            >
+              🔄 Load Cloud
+            </button>
+            <button
+              id="syncControlBtn"
+              type="button"
+              title="Sync remote config from app_control/modules/salary.json"
+              class="bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer"
+            >
+              ⚙️ Sync Config
+            </button>
+            <span id="dbStatusBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 whitespace-nowrap">
+              Local Mode
+            </span>
+          </div>
+        </div>
+
+        <!-- Quick Productivity Actions -->
+        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+          <span>Path: <code id="previewRestPath" class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">salary_records/DEFAULT/October_2026.json</code></span>
+          <div class="flex items-center gap-2">
+            <button
+              id="fillMonSatBtn"
+              type="button"
+              class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold px-2.5 py-1 rounded-lg transition cursor-pointer"
+            >
+              ⚡ Fill 8h (Mon–Sat)
+            </button>
+            <button
+              id="clearSheetBtn"
+              type="button"
+              class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold px-2.5 py-1 rounded-lg transition cursor-pointer"
+            >
+              🧹 Clear Hours
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== PRINTABLE A4 SALARY SHEET ==================== -->
+    <main
+      id="printable-sheet"
+      class="sheet-container max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-slate-200 p-3.5 sm:p-6"
+    >
+      <!-- Embedded Sheet Diagonal Watermark -->
+      <div id="sheetWatermarkBg" class="sheet-watermark-bg" aria-hidden="true">Ssb-dev-hasan</div>
+
+      <div class="relative z-10">
+        <!-- Deep Navy Banner Title -->
+        <div
+          id="sheetBannerTitle"
+          class="bg-[#0f3d7a] text-white text-center font-bold text-base sm:text-xl py-2.5 px-4 rounded-xl mb-3.5 tracking-wide"
+        >
+          Monthly Working and Salary Record Template
+        </div>
+
+        <!-- Employee & Hourly Rates Grid -->
+        <div class="overflow-x-auto mb-3.5">
+          <table class="meta-table w-full border-collapse text-xs sm:text-sm">
+            <tbody>
+              <tr>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2 w-[22%]">Employee Name:</td>
+                <td class="px-2 py-1.5 w-[28%]">
+                  <input
+                    id="empName"
+                    type="text"
+                    placeholder="Enter Employee Name"
+                    class="cell-input font-semibold text-slate-900 px-1 py-0.5 rounded"
+                  />
+                </td>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2 w-[24%]">Normal Rate (RM):</td>
+                <td class="px-2 py-1.5 w-[26%]">
+                  <input
+                    id="rateNormal"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value="9"
+                    class="cell-input font-bold text-slate-900 px-1 py-0.5 rounded"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2">ID No:</td>
+                <td class="px-2 py-1.5">
+                  <input
+                    id="empId"
+                    type="text"
+                    placeholder="Enter ID Number"
+                    class="cell-input font-semibold text-slate-900 px-1 py-0.5 rounded"
+                  />
+                </td>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2">Overtime Rate (RM):</td>
+                <td class="px-2 py-1.5">
+                  <input
+                    id="rateOT"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value="13.5"
+                    class="cell-input font-bold text-slate-900 px-1 py-0.5 rounded"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2">Location:</td>
+                <td class="px-2 py-1.5">
+                  <input
+                    id="empLocation"
+                    type="text"
+                    placeholder="Enter Location"
+                    class="cell-input font-semibold text-slate-900 px-1 py-0.5 rounded"
+                  />
+                </td>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2">Sunday Rate (RM):</td>
+                <td class="px-2 py-1.5">
+                  <input
+                    id="rateSunday"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value="13.5"
+                    class="cell-input font-bold text-slate-900 px-1 py-0.5 rounded"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2">Dept:</td>
+                <td class="px-2 py-1.5">
+                  <input
+                    id="empDept"
+                    type="text"
+                    placeholder="Enter Department"
+                    class="cell-input font-semibold text-slate-900 px-1 py-0.5 rounded"
+                  />
+                </td>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2">PHD Rate (RM/h):</td>
+                <td class="px-2 py-1.5">
+                  <input
+                    id="ratePHD"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value="13.5"
+                    class="cell-input font-bold text-slate-900 px-1 py-0.5 rounded"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-bold text-slate-800 px-2.5 py-2">Month / Year:</td>
+                <td colspan="3" class="px-3 py-2 font-extrabold text-[#0f3d7a] text-sm sm:text-base">
+                  <span id="displayMonthYear">October 2026</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Daily Working Hours & Salary Table -->
+        <div class="overflow-x-auto rounded-lg">
+          <table class="record-table w-full border-collapse text-center text-xs sm:text-[13px]">
+            <thead>
+              <tr class="bg-[#0f3d7a] text-white font-semibold leading-tight">
+                <th class="py-2 px-1.5 w-[13%]">Date / Day</th>
+                <th class="py-2 px-1 w-[11%]">Normal<br class="sm:hidden" /> Hours</th>
+                <th class="py-2 px-1 w-[11%]">Overtime<br class="sm:hidden" /> Hours</th>
+                <th class="py-2 px-1 w-[11%]">Sunday<br class="sm:hidden" /> Hours</th>
+                <th class="py-2 px-1 w-[11%]">PHD<br class="sm:hidden" /> Hours</th>
+                <th class="py-2 px-1 w-[11%] bg-[#092854]">Daily Total<br />Hours</th>
+                <th class="py-2 px-1.5 w-[14%] bg-[#092854]">Daily Total<br />Salary</th>
+                <th class="py-2 px-2 w-[18%]">Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="daysTableBody">
+              <!-- Populated dynamically for days 1..31 -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Summary & Totals Section -->
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
+          <!-- Left Table: Hours Breakdown -->
+          <table class="summary-table w-full border-collapse text-xs sm:text-sm">
+            <tbody>
+              <tr>
+                <td class="bg-slate-50 font-semibold text-slate-700 px-3 py-1.5">Total Normal Hours</td>
+                <td id="sumNormalHrs" class="px-3 py-1.5 text-right font-bold text-slate-900">0.00</td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-semibold text-slate-700 px-3 py-1.5">Total Overtime Hours</td>
+                <td id="sumOTHrs" class="px-3 py-1.5 text-right font-bold text-slate-900">0.00</td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-semibold text-slate-700 px-3 py-1.5">Total Sunday Hours</td>
+                <td id="sumSundayHrs" class="px-3 py-1.5 text-right font-bold text-slate-900">0.00</td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-semibold text-slate-700 px-3 py-1.5">Total PHD Hours</td>
+                <td id="sumPHDHrs" class="px-3 py-1.5 text-right font-bold text-slate-900">0.00</td>
+              </tr>
+              <tr class="bg-blue-50/80">
+                <td class="font-extrabold text-[#0f3d7a] px-3 py-2">Grand Total Hours</td>
+                <td id="grandTotalHrs" class="px-3 py-2 text-right font-extrabold text-[#0f3d7a]">0.00</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Right Table: Salary & Net Payable -->
+          <table class="summary-table w-full border-collapse text-xs sm:text-sm">
+            <tbody>
+              <tr>
+                <td class="bg-slate-50 font-bold text-slate-800 px-3 py-1.5">Gross Salary (RM)</td>
+                <td class="px-3 py-1.5 text-right font-extrabold text-slate-900">RM <span id="grossSalary">0.00</span></td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-semibold text-emerald-700 px-3 py-1.5">Allowance / Bonus (+)</td>
+                <td class="px-2.5 py-1 text-right">
+                  <input
+                    id="allowanceInput"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    class="w-24 text-right font-semibold text-emerald-700 bg-emerald-50/50 border border-emerald-200 rounded px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td class="bg-slate-50 font-semibold text-rose-700 px-3 py-1.5">Advance / Deduction (-)</td>
+                <td class="px-2.5 py-1 text-right">
+                  <input
+                    id="deductionInput"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    class="w-24 text-right font-semibold text-rose-700 bg-rose-50/50 border border-rose-200 rounded px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-rose-500"
+                  />
+                </td>
+              </tr>
+              <tr class="bg-[#0f3d7a] text-white">
+                <td class="font-extrabold px-3 py-2.5 tracking-wide">NET PAYABLE (RM)</td>
+                <td class="px-3 py-2.5 text-right font-extrabold text-sm sm:text-base">RM <span id="netPayable">0.00</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Signature Lines -->
+        <div class="mt-7 pt-2 grid grid-cols-2 gap-8 text-xs text-slate-700">
+          <div>
+            <div class="h-8 border-b border-dashed border-slate-400 mb-1.5"></div>
+            <p class="font-bold text-slate-800">Employee Signature</p>
+            <p class="text-[11px] text-slate-500">Date: ______________________</p>
+          </div>
+          <div>
+            <div class="h-8 border-b border-dashed border-slate-400 mb-1.5"></div>
+            <p class="font-bold text-slate-800">Authorized Manager</p>
+            <p class="text-[11px] text-slate-500">Approved & Verified</p>
+          </div>
+        </div>
+
+        <!-- Owner Footer Credit -->
+        <div class="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-semibold select-none">
+          <span>HASAN SYSTEM — Official Salary Record</span>
+          <span id="footerOwnerCredit">Powered by Ssb-dev-hasan</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MODAL: ADD NEW MONTH ==================== -->
+  <div id="addMonthModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h2 class="text-base font-extrabold text-slate-900">Add New Month / Year</h2>
+        <button type="button" class="close-modal text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none cursor-pointer">&times;</button>
+      </div>
+      <div class="mt-4 space-y-3">
+        <div>
+          <label for="newMonthSelect" class="block text-xs font-bold text-slate-700 mb-1">Month</label>
+          <select id="newMonthSelect" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold">
+            <option value="0">January</option>
+            <option value="1">February</option>
+            <option value="2">March</option>
+            <option value="3">April</option>
+            <option value="4">May</option>
+            <option value="5">June</option>
+            <option value="6">July</option>
+            <option value="7">August</option>
+            <option value="8">September</option>
+            <option value="9">October</option>
+            <option value="10">November</option>
+            <option value="11">December</option>
+          </select>
+        </div>
+        <div>
+          <label for="newYearInput" class="block text-xs font-bold text-slate-700 mb-1">Year</label>
+          <input id="newYearInput" type="number" min="2000" max="2100" value="2027" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold" />
+        </div>
+        <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer pt-1">
+          <input id="copyProfileCheck" type="checkbox" checked class="rounded text-blue-600" />
+          <span>Copy current employee profile & hourly rates</span>
+        </label>
+      </div>
+      <div class="mt-5 flex justify-end gap-2">
+        <button type="button" class="close-modal px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">Cancel</button>
+        <button id="createMonthConfirmBtn" type="button" class="px-4 py-2 rounded-xl bg-[#00a843] hover:bg-[#008f39] text-white text-xs font-bold cursor-pointer">Add Month</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: HISTORY & JSON BACKUP/RESTORE ==================== -->
+  <div id="historyModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-xl p-5 max-h-[88vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Saved History & JSON Backup</h2>
+          <p class="text-xs text-slate-500">Load, delete, or export/import monthly records.</p>
+        </div>
+        <button type="button" class="close-modal text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none cursor-pointer">&times;</button>
+      </div>
+
+      <div id="historyList" class="my-4 overflow-y-auto space-y-2.5 flex-1 pr-1"></div>
+
+      <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <button id="exportBackupBtn" type="button" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold cursor-pointer">
+            ⬇ Export JSON
+          </button>
+          <label class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-bold cursor-pointer">
+            ⬆ Import JSON
+            <input id="importBackupFile" type="file" accept=".json,application/json" class="hidden" />
+          </label>
+        </div>
+        <button type="button" class="close-modal px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION ==================== -->
+  <div id="toast" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-2">
+    <div id="toastMsg" class="bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl"></div>
+  </div>
+
+  <!-- ==================== TAMPER-RESISTANT OWNER WATERMARK GUARD ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      // Freeze owner identity constant
+      const OWNER_CONFIG = Object.freeze({
+        brand: 'Ssb-dev-hasan',
+        footerText: 'Powered by Ssb-dev-hasan',
+        layerId: 'ssb-owner-watermark-layer',
+        textId: 'ssb-owner-watermark-text',
+        styleId: 'ssb-guard-style'
+      });
+
+      function enforceWatermarkIntegrity() {
+        // 1. Ensure immutable guard stylesheet exists
+        if (!document.getElementById(OWNER_CONFIG.styleId)) {
+          const style = document.createElement('style');
+          style.id = OWNER_CONFIG.styleId;
+          style.textContent = `
+            #${OWNER_CONFIG.layerId} {
+              position: fixed !important;
+              inset: 0 !important;
+              width: 100vw !important;
+              height: 100vh !important;
+              pointer-events: none !important;
+              user-select: none !important;
+              -webkit-user-select: none !important;
+              z-index: 99999 !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              overflow: hidden !important;
+              opacity: 1 !important;
+              visibility: visible !important;
+            }
+            #${OWNER_CONFIG.textId} {
+              font-family: 'Inter', sans-serif !important;
+              font-size: clamp(2rem, 7vw, 4.75rem) !important;
+              font-weight: 900 !important;
+              letter-spacing: 0.08em !important;
+              color: rgba(15, 61, 122, 0.045) !important;
+              transform: rotate(-32deg) !important;
+              white-space: nowrap !important;
+              pointer-events: none !important;
+              user-select: none !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+            }
+            #sheetWatermarkBg {
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+              pointer-events: none !important;
+              user-select: none !important;
+            }
+          `;
+          (document.head || document.documentElement).appendChild(style);
+        }
+
+        // 2. Ensure fixed viewport overlay exists
+        let layer = document.getElementById(OWNER_CONFIG.layerId);
+        if (!layer && document.body) {
+          layer = document.createElement('div');
+          layer.id = OWNER_CONFIG.layerId;
+          layer.setAttribute('aria-hidden', 'true');
+          document.body.appendChild(layer);
+        }
+
+        if (layer) {
+          layer.removeAttribute('hidden');
+          layer.style.setProperty('display', 'flex', 'important');
+          layer.style.setProperty('visibility', 'visible', 'important');
+          layer.style.setProperty('opacity', '1', 'important');
+
+          let label = document.getElementById(OWNER_CONFIG.textId);
+          if (!label) {
+            label = document.createElement('div');
+            label.id = OWNER_CONFIG.textId;
+            layer.appendChild(label);
+          }
+          if (label.textContent !== OWNER_CONFIG.brand) {
+            label.textContent = OWNER_CONFIG.brand;
+          }
+          label.style.setProperty('display', 'block', 'important');
+          label.style.setProperty('visibility', 'visible', 'important');
+          label.style.setProperty('opacity', '1', 'important');
+        }
+
+        // 3. Ensure sheet-embedded watermark & footer credit stay intact
+        const sheetWm = document.getElementById('sheetWatermarkBg');
+        if (sheetWm) {
+          if (sheetWm.textContent !== OWNER_CONFIG.brand) {
+            sheetWm.textContent = OWNER_CONFIG.brand;
+          }
+          sheetWm.removeAttribute('hidden');
+          sheetWm.style.setProperty('display', 'block', 'important');
+          sheetWm.style.setProperty('visibility', 'visible', 'important');
+          sheetWm.style.setProperty('opacity', '1', 'important');
+        }
+
+        const footerCredit = document.getElementById('footerOwnerCredit');
+        if (footerCredit && footerCredit.textContent !== OWNER_CONFIG.footerText) {
+          footerCredit.textContent = OWNER_CONFIG.footerText;
+        }
+      }
+
+      // Initial enforcement
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enforceWatermarkIntegrity);
+      } else {
+        enforceWatermarkIntegrity();
+      }
+
+      // MutationObserver Watchdog to prevent removal or tampering via DevTools
+      let isRestoring = false;
+      const watchdog = new MutationObserver(() => {
+        if (isRestoring) return;
+        isRestoring = true;
+        try {
+          enforceWatermarkIntegrity();
+        } finally {
+          isRestoring = false;
+        }
+      });
+
+      watchdog.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        characterData: true
+      });
+
+      // Expose frozen PDF watermark helper
+      window.__ssbGetOwnerBrand = Object.freeze(() => OWNER_CONFIG.brand);
+    })();
+  </script>
+
+  <!-- ==================== MAIN SALARY & DATABASE APPLICATION SCRIPT ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'hasan_system_salary_records_v3';
+      const DB_URL_KEY = 'hasan_system_rtdb_url_v3';
+
+      const MONTHS = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      // Pre-seeded months per requirements
+      const PRESET_MONTH_KEYS = [
+        '2026-09', // October 2026
+        '2026-10', // November 2026
+        '2026-11', // December 2026
+        '2027-00', // January 2027
+        '2027-01', // February 2027
+        '2027-02'  // March 2027
+      ];
+
+      let appState = {
+        activeKey: '2026-09', // Default October 2026
+        dbUrl: '',
+        allowPdf: true,
+        records: {}
+      };
+
+      const els = {
+        appWrapper: document.getElementById('appWrapper'),
+        moduleLockedBanner: document.getElementById('moduleLockedBanner'),
+        monthSelector: document.getElementById('monthSelector'),
+        displayMonthYear: document.getElementById('displayMonthYear'),
+        sheetBannerTitle: document.getElementById('sheetBannerTitle'),
+        historyCount: document.getElementById('historyCount'),
+
+        openAddMonthBtn: document.getElementById('openAddMonthBtn'),
+        openHistoryBtn: document.getElementById('openHistoryBtn'),
+        downloadPdfBtn: document.getElementById('downloadPdfBtn'),
+        pdfBtnLabel: document.getElementById('pdfBtnLabel'),
+        saveLocalBtn: document.getElementById('saveLocalBtn'),
+        cloudSyncBtn: document.getElementById('cloudSyncBtn'),
+        toggleDbBarBtn: document.getElementById('toggleDbBarBtn'),
+        dbDot: document.getElementById('dbDot'),
+
+        dbConfigBar: document.getElementById('dbConfigBar'),
+        dbUrlInput: document.getElementById('dbUrlInput'),
+        cloudLoadBtn: document.getElementById('cloudLoadBtn'),
+        syncControlBtn: document.getElementById('syncControlBtn'),
+        dbStatusBadge: document.getElementById('dbStatusBadge'),
+        previewRestPath: document.getElementById('previewRestPath'),
+        fillMonSatBtn: document.getElementById('fillMonSatBtn'),
+        clearSheetBtn: document.getElementById('clearSheetBtn'),
+
+        empName: document.getElementById('empName'),
+        empId: document.getElementById('empId'),
+        empLocation: document.getElementById('empLocation'),
+        empDept: document.getElementById('empDept'),
+        rateNormal: document.getElementById('rateNormal'),
+        rateOT: document.getElementById('rateOT'),
+        rateSunday: document.getElementById('rateSunday'),
+        ratePHD: document.getElementById('ratePHD'),
+
+        daysTableBody: document.getElementById('daysTableBody'),
+        sumNormalHrs: document.getElementById('sumNormalHrs'),
+        sumOTHrs: document.getElementById('sumOTHrs'),
+        sumSundayHrs: document.getElementById('sumSundayHrs'),
+        sumPHDHrs: document.getElementById('sumPHDHrs'),
+        grandTotalHrs: document.getElementById('grandTotalHrs'),
+        grossSalary: document.getElementById('grossSalary'),
+        allowanceInput: document.getElementById('allowanceInput'),
+        deductionInput: document.getElementById('deductionInput'),
+        netPayable: document.getElementById('netPayable'),
+
+        printableSheet: document.getElementById('printable-sheet'),
+
+        addMonthModal: document.getElementById('addMonthModal'),
+        newMonthSelect: document.getElementById('newMonthSelect'),
+        newYearInput: document.getElementById('newYearInput'),
+        copyProfileCheck: document.getElementById('copyProfileCheck'),
+        createMonthConfirmBtn: document.getElementById('createMonthConfirmBtn'),
+
+        historyModal: document.getElementById('historyModal'),
+        historyList: document.getElementById('historyList'),
+        exportBackupBtn: document.getElementById('exportBackupBtn'),
+        importBackupFile: document.getElementById('importBackupFile'),
+
+        toast: document.getElementById('toast'),
+        toastMsg: document.getElementById('toastMsg')
+      };
+
+      let toastTimeout = null;
+      function showToast(msg, isError = false) {
+        els.toastMsg.textContent = msg;
+        els.toastMsg.className = isError
+          ? 'bg-rose-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl'
+          : 'bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl';
+        els.toast.classList.remove('opacity-0', 'translate-y-2');
+        els.toast.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          els.toast.classList.remove('opacity-100', 'translate-y-0');
+          els.toast.classList.add('opacity-0', 'translate-y-2');
+        }, 2800);
+      }
+
+      function updateDbStatus(text, type = 'local') {
+        els.dbStatusBadge.textContent = text;
+        if (type === 'ok') {
+          els.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 whitespace-nowrap';
+          els.dbDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        } else if (type === 'err') {
+          els.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 whitespace-nowrap';
+          els.dbDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+        } else {
+          els.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 whitespace-nowrap';
+          els.dbDot.className = 'w-2 h-2 rounded-full bg-slate-400';
+        }
+      }
+
+      function formatMonthKey(key) {
+        const [y, m] = key.split('-');
+        return `${MONTHS[parseInt(m, 10)]} ${parseInt(y, 10)}`;
+      }
+
+      function getDaysCount(year, monthIdx) {
+        return new Date(year, monthIdx + 1, 0).getDate();
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/"/g, '&quot;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
+      function createEmptyRecord(key, template = null) {
+        const [yStr, mStr] = key.split('-');
+        const totalDays = getDaysCount(parseInt(yStr, 10), parseInt(mStr, 10));
+        const days = {};
+        for (let d = 1; d <= totalDays; d++) {
+          days[d] = { normal: '', ot: '', sunday: '', phd: '', remarks: '' };
+        }
+        return {
+          key,
+          empName: template ? template.empName : '',
+          empId: template ? template.empId : '',
+          empLocation: template ? template.empLocation : '',
+          empDept: template ? template.empDept : '',
+          rateNormal: template ? template.rateNormal : '9',
+          rateOT: template ? template.rateOT : '13.5',
+          rateSunday: template ? template.rateSunday : '13.5',
+          ratePHD: template ? template.ratePHD : '13.5',
+          allowance: '',
+          deduction: '',
+          days
+        };
+      }
+
+      function getSanitizedEmpId() {
+        const raw = (els.empId.value || 'DEFAULT').trim();
+        return raw.replace(/[.#$\[\]\/\\]+/g, '_') || 'DEFAULT';
+      }
+
+      function getMonthSlug() {
+        return formatMonthKey(appState.activeKey).replace(/\s+/g, '_');
+      }
+
+      function updateRestPathPreview() {
+        els.previewRestPath.textContent = `salary_records/${getSanitizedEmpId()}/${getMonthSlug()}.json`;
+      }
+
+      function loadState() {
+        try {
+          const savedUrl = localStorage.getItem(DB_URL_KEY);
+          if (savedUrl) appState.dbUrl = savedUrl;
+
+          const savedRaw = localStorage.getItem(STORAGE_KEY);
+          if (savedRaw) {
+            const parsed = JSON.parse(savedRaw);
+            if (parsed && typeof parsed.records === 'object') {
+              appState.records = parsed.records;
+              if (parsed.activeKey && appState.records[parsed.activeKey]) {
+                appState.activeKey = parsed.activeKey;
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Failed to read localStorage:', err);
+        }
+
+        // Ensure all preset months exist in dropdown
+        PRESET_MONTH_KEYS.forEach((k) => {
+          if (!appState.records[k]) {
+            appState.records[k] = createEmptyRecord(k);
+          }
+        });
+
+        if (!appState.records[appState.activeKey]) {
+          appState.activeKey = '2026-09';
+        }
+
+        // Read URL Query Parameters (?db=...&id=...&name=...&loc=...&dept=...)
+        const params = new URLSearchParams(window.location.search);
+        const qDb = params.get('db');
+        const qId = params.get('id');
+        const qName = params.get('name');
+        const qLoc = params.get('loc');
+        const qDept = params.get('dept');
+
+        if (qDb) {
+          appState.dbUrl = qDb.trim();
+          localStorage.setItem(DB_URL_KEY, appState.dbUrl);
+        }
+
+        const activeRec = appState.records[appState.activeKey];
+        if (qId !== null) activeRec.empId = qId;
+        if (qName !== null) activeRec.empName = qName;
+        if (qLoc !== null) activeRec.empLocation = qLoc;
+        if (qDept !== null) activeRec.empDept = qDept;
+
+        els.dbUrlInput.value = appState.dbUrl || '';
+        if (appState.dbUrl) {
+          updateDbStatus('DB Linked', 'ok');
+        } else {
+          updateDbStatus('Local Mode', 'local');
+        }
+      }
+
+      function persistLocal(notify = false) {
+        syncFormToState();
+        try {
+          localStorage.setItem(DB_URL_KEY, appState.dbUrl);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            activeKey: appState.activeKey,
+            records: appState.records
+          }));
+          updateHistoryCounter();
+          if (notify) {
+            showToast(`Saved ${formatMonthKey(appState.activeKey)} locally!`);
+          }
+        } catch (err) {
+          showToast('Unable to save data locally.', true);
+        }
+      }
+
+      function updateHistoryCounter() {
+        els.historyCount.textContent = Object.keys(appState.records).length;
+      }
+
+      function renderMonthDropdown() {
+        const keys = Object.keys(appState.records).sort();
+        els.monthSelector.innerHTML = '';
+        keys.forEach((key) => {
+          const opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = formatMonthKey(key);
+          if (key === appState.activeKey) opt.selected = true;
+          els.monthSelector.appendChild(opt);
+        });
+        els.displayMonthYear.textContent = formatMonthKey(appState.activeKey);
+        updateHistoryCounter();
+      }
+
+      function renderActiveSheet() {
+        const rec = appState.records[appState.activeKey] || createEmptyRecord(appState.activeKey);
+        appState.records[appState.activeKey] = rec;
+
+        els.displayMonthYear.textContent = formatMonthKey(appState.activeKey);
+        els.empName.value = rec.empName || '';
+        els.empId.value = rec.empId || '';
+        els.empLocation.value = rec.empLocation || '';
+        els.empDept.value = rec.empDept || '';
+        els.rateNormal.value = rec.rateNormal ?? '9';
+        els.rateOT.value = rec.rateOT ?? '13.5';
+        els.rateSunday.value = rec.rateSunday ?? '13.5';
+        els.ratePHD.value = rec.ratePHD ?? '13.5';
+        els.allowanceInput.value = rec.allowance || '';
+        els.deductionInput.value = rec.deduction || '';
+
+        const [yStr, mStr] = appState.activeKey.split('-');
+        const year = parseInt(yStr, 10);
+        const monthIdx = parseInt(mStr, 10);
+        const daysInMonth = getDaysCount(year, monthIdx);
+
+        els.daysTableBody.innerHTML = '';
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const dow = new Date(year, monthIdx, day).getDay();
+          const dayShort = WEEKDAYS[dow];
+          const isSunday = dow === 0;
+          const dRow = rec.days[day] || { normal: '', ot: '', sunday: '', phd: '', remarks: '' };
+
+          const tr = document.createElement('tr');
+          tr.dataset.day = day;
+          tr.className = isSunday ? 'bg-amber-50/70' : 'hover:bg-slate-50/80';
+
+          tr.innerHTML = `
+            <td class="py-1 px-1.5 font-semibold text-slate-800 whitespace-nowrap text-left sm:text-center">
+              <span>Day ${day}</span>
+              <span class="text-[10px] ml-1 px-1 rounded ${isSunday ? 'bg-amber-200/80 text-amber-950 font-bold' : 'text-slate-400'}">${dayShort}</span>
+            </td>
+            <td class="p-0.5">
+              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="normal" value="${dRow.normal}"
+                class="day-input cell-input text-center py-1 px-1 font-medium rounded" />
+            </td>
+            <td class="p-0.5">
+              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="ot" value="${dRow.ot}"
+                class="day-input cell-input text-center py-1 px-1 font-medium rounded" />
+            </td>
+            <td class="p-0.5">
+              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="sunday" value="${dRow.sunday}"
+                class="day-input cell-input text-center py-1 px-1 font-medium rounded" />
+            </td>
+            <td class="p-0.5">
+              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="phd" value="${dRow.phd}"
+                class="day-input cell-input text-center py-1 px-1 font-medium rounded" />
+            </td>
+            <td id="dayHrs-${day}" class="py-1 px-1 font-bold text-slate-700 bg-slate-50/90">0.00</td>
+            <td id="daySal-${day}" class="py-1 px-1.5 font-bold text-slate-900 bg-slate-50/90">0.00</td>
+            <td class="p-0.5">
+              <input type="text" data-day="${day}" data-field="remarks" value="${escapeHtml(dRow.remarks)}"
+                class="day-input cell-input text-left py-1 px-1.5 text-slate-700 rounded" />
+            </td>
+          `;
+
+          els.daysTableBody.appendChild(tr);
+        }
+
+        updateRestPathPreview();
+        recalculateTotals();
+      }
+
+      function syncFormToState() {
+        const rec = appState.records[appState.activeKey];
+        if (!rec) return;
+
+        rec.empName = els.empName.value.trim();
+        rec.empId = els.empId.value.trim();
+        rec.empLocation = els.empLocation.value.trim();
+        rec.empDept = els.empDept.value.trim();
+        rec.rateNormal = els.rateNormal.value;
+        rec.rateOT = els.rateOT.value;
+        rec.rateSunday = els.rateSunday.value;
+        rec.ratePHD = els.ratePHD.value;
+        rec.allowance = els.allowanceInput.value;
+        rec.deduction = els.deductionInput.value;
+        appState.dbUrl = els.dbUrlInput.value.trim();
+
+        els.daysTableBody.querySelectorAll('.day-input').forEach((inp) => {
+          const d = inp.dataset.day;
+          const f = inp.dataset.field;
+          if (!rec.days[d]) rec.days[d] = {};
+          rec.days[d][f] = inp.value;
+        });
+      }
+
+      function recalculateTotals() {
+        const rN = parseFloat(els.rateNormal.value) || 0;
+        const rOT = parseFloat(els.rateOT.value) || 0;
+        const rSun = parseFloat(els.rateSunday.value) || 0;
+        const rPHD = parseFloat(els.ratePHD.value) || 0;
+
+        let totN = 0, totOT = 0, totSun = 0, totPHD = 0, gross = 0;
+
+        els.daysTableBody.querySelectorAll('tr').forEach((tr) => {
+          const day = tr.dataset.day;
+          const n = parseFloat(tr.querySelector('[data-field="normal"]').value) || 0;
+          const ot = parseFloat(tr.querySelector('[data-field="ot"]').value) || 0;
+          const sun = parseFloat(tr.querySelector('[data-field="sunday"]').value) || 0;
+          const phd = parseFloat(tr.querySelector('[data-field="phd"]').value) || 0;
+
+          const dayHrs = n + ot + sun + phd;
+          const daySal = (n * rN) + (ot * rOT) + (sun * rSun) + (phd * rPHD);
+
+          totN += n;
+          totOT += ot;
+          totSun += sun;
+          totPHD += phd;
+          gross += daySal;
+
+          const hrsCell = document.getElementById(`dayHrs-${day}`);
+          const salCell = document.getElementById(`daySal-${day}`);
+          if (hrsCell) hrsCell.textContent = dayHrs.toFixed(2);
+          if (salCell) salCell.textContent = daySal.toFixed(2);
+        });
+
+        const grandHrs = totN + totOT + totSun + totPHD;
+        const allowance = parseFloat(els.allowanceInput.value) || 0;
+        const deduction = parseFloat(els.deductionInput.value) || 0;
+        const net = Math.max(0, gross + allowance - deduction);
+
+        els.sumNormalHrs.textContent = totN.toFixed(2);
+        els.sumOTHrs.textContent = totOT.toFixed(2);
+        els.sumSundayHrs.textContent = totSun.toFixed(2);
+        els.sumPHDHrs.textContent = totPHD.toFixed(2);
+        els.grandTotalHrs.textContent = grandHrs.toFixed(2);
+        els.grossSalary.textContent = gross.toFixed(2);
+        els.netPayable.textContent = net.toFixed(2);
+
+        updateRestPathPreview();
+        persistLocal(false);
+      }
+
+      // Firebase Realtime Database REST (.json) Operations
+      function getBaseDbUrl() {
+        return (els.dbUrlInput.value || '').trim().replace(/\/+$/, '');
+      }
+
+      function getRecordRestEndpoint() {
+        const base = getBaseDbUrl();
+        if (!base) return null;
+        return `${base}/salary_records/${getSanitizedEmpId()}/${getMonthSlug()}.json`;
+      }
+
+      async function syncRemoteModuleControl() {
+        const base = getBaseDbUrl();
+        if (!base) return;
+        try {
+          const res = await fetch(`${base}/app_control/modules/salary.json`);
+          if (!res.ok) return;
+          const ctrl = await res.json();
+          if (!ctrl) return;
+
+          if (ctrl.enabled === false) {
+            els.appWrapper.classList.add('hidden');
+            els.moduleLockedBanner.classList.remove('hidden');
+            return;
+          } else {
+            els.appWrapper.classList.remove('hidden');
+            els.moduleLockedBanner.classList.add('hidden');
+          }
+
+          if (ctrl.title) {
+            els.sheetBannerTitle.textContent = ctrl.title;
+          }
+
+          if (ctrl.allowPdfDownload === false) {
+            appState.allowPdf = false;
+            els.downloadPdfBtn.classList.add('hidden');
+          } else {
+            appState.allowPdf = true;
+            els.downloadPdfBtn.classList.remove('hidden');
+          }
+
+          if (ctrl.defaultRates) {
+            if (ctrl.defaultRates.normal !== undefined) els.rateNormal.value = ctrl.defaultRates.normal;
+            if (ctrl.defaultRates.overtime !== undefined) els.rateOT.value = ctrl.defaultRates.overtime;
+            if (ctrl.defaultRates.sunday !== undefined) els.rateSunday.value = ctrl.defaultRates.sunday;
+            if (ctrl.defaultRates.phd !== undefined) els.ratePHD.value = ctrl.defaultRates.phd;
+            recalculateTotals();
+          }
+
+          updateDbStatus('Config Synced ✓', 'ok');
+          showToast('Remote module config synced!');
+        } catch (err) {
+          console.warn('Control sync skipped:', err);
+        }
+      }
+
+      async function saveRecordToCloud() {
+        persistLocal(false);
+        const endpoint = getRecordRestEndpoint();
+        if (!endpoint) {
+          els.dbConfigBar.classList.remove('hidden');
+          els.dbUrlInput.focus();
+          showToast('Paste your Firebase Realtime DB URL first.', true);
+          return;
+        }
+
+        const rec = appState.records[appState.activeKey];
+        const payload = {
+          ...rec,
+          monthLabel: formatMonthKey(appState.activeKey),
+          ownerBrand: 'Ssb-dev-hasan',
+          summary: {
+            totalNormalHours: els.sumNormalHrs.textContent,
+            totalOvertimeHours: els.sumOTHrs.textContent,
+            totalSundayHours: els.sumSundayHrs.textContent,
+            totalPHDHours: els.sumPHDHrs.textContent,
+            grandTotalHours: els.grandTotalHrs.textContent,
+            grossSalary: els.grossSalary.textContent,
+            netPayable: els.netPayable.textContent
+          },
+          updatedAt: new Date().toISOString()
+        };
+
+        try {
+          updateDbStatus('Syncing...', 'local');
+          const res = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          updateDbStatus('Cloud Synced ✓', 'ok');
+          showToast('Saved & synced to Firebase Realtime Database!');
+        } catch (err) {
+          console.error(err);
+          updateDbStatus('Sync Failed', 'err');
+          showToast(`Cloud sync failed: ${err.message}`, true);
+        }
+      }
+
+      async function loadRecordFromCloud(silentIfMissing = false) {
+        const endpoint = getRecordRestEndpoint();
+        if (!endpoint) {
+          if (!silentIfMissing) {
+            els.dbConfigBar.classList.remove('hidden');
+            showToast('Paste your Firebase Realtime DB URL first.', true);
+          }
+          return;
+        }
+
+        try {
+          updateDbStatus('Loading...', 'local');
+          const res = await fetch(endpoint);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          if (!data) {
+            updateDbStatus('DB Linked', 'ok');
+            if (!silentIfMissing) {
+              showToast('No cloud record found for this ID & Month.');
+            }
+            return;
+          }
+
+          const current = appState.records[appState.activeKey];
+          appState.records[appState.activeKey] = {
+            ...current,
+            ...data,
+            key: appState.activeKey,
+            days: { ...current.days, ...(data.days || {}) }
+          };
+          renderActiveSheet();
+          persistLocal(false);
+          updateDbStatus('Loaded ✓', 'ok');
+          showToast('Loaded record from Firebase Realtime DB!');
+        } catch (err) {
+          console.error(err);
+          updateDbStatus('Load Error', 'err');
+          if (!silentIfMissing) {
+            showToast(`Cloud load error: ${err.message}`, true);
+          }
+        }
+      }
+
+      // Clean A4 PDF Export with Direct 'Ssb-dev-hasan' Diagonal Watermark Stamping on Every Page
+      async function downloadStampedA4Pdf() {
+        if (!appState.allowPdf) return;
+        persistLocal(false);
+
+        const safeEmp = (els.empName.value || 'Employee').replace(/[^a-zA-Z0-9_-]+/g, '_');
+        const safeMonth = getMonthSlug();
+        const filename = `${safeEmp}_${safeMonth}_Salary_Record.pdf`;
+
+        if (typeof html2pdf === 'undefined') {
+          window.print();
+          return;
+        }
+
+        const origLabel = els.pdfBtnLabel.textContent;
+        els.pdfBtnLabel.textContent = 'Generating PDF...';
+        els.downloadPdfBtn.disabled = true;
+        els.printableSheet.classList.add('pdf-export-mode');
+
+        try {
+          const worker = html2pdf().set({
+            margin: [5, 5, 5, 5],
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+          }).from(els.printableSheet).toPdf();
+
+          const pdf = await worker.get('pdf');
+          const totalPages = pdf.internal.getNumberOfPages();
+          const ownerBrand = (window.__ssbGetOwnerBrand && window.__ssbGetOwnerBrand()) || 'Ssb-dev-hasan';
+
+          for (let page = 1; page <= totalPages; page++) {
+            pdf.setPage(page);
+            const pageW = pdf.internal.pageSize.getWidth();
+            const pageH = pdf.internal.pageSize.getHeight();
+
+            pdf.saveGraphicsState();
+            if (typeof pdf.GState === 'function') {
+              pdf.setGState(new pdf.GState({ opacity: 0.11 }));
+            }
+            pdf.setTextColor(15, 61, 122);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(34);
+            pdf.text(ownerBrand, pageW / 2, pageH / 2, {
+              align: 'center',
+              angle: 32
+            });
+            pdf.restoreGraphicsState();
+          }
+
+          await worker.save();
+          showToast(`Downloaded ${filename}`);
+        } catch (err) {
+          console.error('PDF export error:', err);
+          window.print();
+        } finally {
+          els.printableSheet.classList.remove('pdf-export-mode');
+          els.pdfBtnLabel.textContent = origLabel;
+          els.downloadPdfBtn.disabled = false;
+        }
+      }
+
+      // History Modal Rendering
+      function renderHistoryModal() {
+        const keys = Object.keys(appState.records).sort().reverse();
+        els.historyList.innerHTML = '';
+
+        keys.forEach((key) => {
+          const rec = appState.records[key];
+          const isCurrent = key === appState.activeKey;
+          const card = document.createElement('div');
+          card.className = `p-3 rounded-xl border ${isCurrent ? 'border-blue-400 bg-blue-50/70' : 'border-slate-200 bg-slate-50'} flex flex-wrap items-center justify-between gap-2`;
+
+          card.innerHTML = `
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-extrabold text-sm text-slate-900">${formatMonthKey(key)}</span>
+                ${isCurrent ? '<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white">Active</span>' : ''}
+              </div>
+              <div class="text-xs text-slate-600 mt-0.5">
+                Name: <strong>${escapeHtml(rec.empName || 'Not Set')}</strong> • ID: <strong>${escapeHtml(rec.empId || '-')}</strong>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" data-action="open" data-key="${key}" class="px-3 py-1.5 rounded-lg bg-[#0066e6] hover:bg-[#0055c4] text-white text-xs font-bold cursor-pointer">Open</button>
+              <button type="button" data-action="delete" data-key="${key}" class="px-2.5 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold cursor-pointer">Delete</button>
+            </div>
+          `;
+          els.historyList.appendChild(card);
+        });
+      }
+
+      function openModal(modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeAllModals() {
+        [els.addMonthModal, els.historyModal].forEach((m) => {
+          m.classList.add('hidden');
+          m.classList.remove('flex');
+        });
+      }
+
+      // Wire Up Event Listeners
+      els.daysTableBody.addEventListener('input', (e) => {
+        if (e.target.classList.contains('day-input')) {
+          recalculateTotals();
+        }
+      });
+
+      [
+        els.empName, els.empId, els.empLocation, els.empDept,
+        els.rateNormal, els.rateOT, els.rateSunday, els.ratePHD,
+        els.allowanceInput, els.deductionInput
+      ].forEach((input) => input.addEventListener('input', recalculateTotals));
+
+      els.monthSelector.addEventListener('change', (e) => {
+        persistLocal(false);
+        appState.activeKey = e.target.value;
+        renderActiveSheet();
+        if (getBaseDbUrl()) {
+          loadRecordFromCloud(true);
+        }
+      });
+
+      els.toggleDbBarBtn.addEventListener('click', () => {
+        els.dbConfigBar.classList.toggle('hidden');
+      });
+
+      els.dbUrlInput.addEventListener('change', () => {
+        appState.dbUrl = els.dbUrlInput.value.trim();
+        localStorage.setItem(DB_URL_KEY, appState.dbUrl);
+        updateDbStatus(appState.dbUrl ? 'DB Linked' : 'Local Mode', appState.dbUrl ? 'ok' : 'local');
+      });
+
+      els.saveLocalBtn.addEventListener('click', () => persistLocal(true));
+      els.cloudSyncBtn.addEventListener('click', saveRecordToCloud);
+      els.cloudLoadBtn.addEventListener('click', () => loadRecordFromCloud(false));
+      els.syncControlBtn.addEventListener('click', syncRemoteModuleControl);
+      els.downloadPdfBtn.addEventListener('click', downloadStampedA4Pdf);
+
+      els.fillMonSatBtn.addEventListener('click', () => {
+        const [yStr, mStr] = appState.activeKey.split('-');
+        const y = parseInt(yStr, 10);
+        const m = parseInt(mStr, 10);
+        els.daysTableBody.querySelectorAll('tr').forEach((tr) => {
+          const day = parseInt(tr.dataset.day, 10);
+          const dow = new Date(y, m, day).getDay();
+          const normalInp = tr.querySelector('[data-field="normal"]');
+          if (dow !== 0 && !normalInp.value) {
+            normalInp.value = '8';
+          }
+        });
+        recalculateTotals();
+        showToast('Filled 8 Normal Hours on empty Mon–Sat days.');
+      });
+
+      els.clearSheetBtn.addEventListener('click', () => {
+        els.daysTableBody.querySelectorAll('.day-input').forEach((inp) => {
+          inp.value = '';
+        });
+        els.allowanceInput.value = '';
+        els.deductionInput.value = '';
+        recalculateTotals();
+        showToast('Cleared hours for this month.');
+      });
+
+      els.openAddMonthBtn.addEventListener('click', () => {
+        const [yStr, mStr] = appState.activeKey.split('-');
+        let nextM = parseInt(mStr, 10) + 1;
+        let nextY = parseInt(yStr, 10);
+        if (nextM > 11) {
+          nextM = 0;
+          nextY += 1;
+        }
+        els.newMonthSelect.value = String(nextM);
+        els.newYearInput.value = String(nextY);
+        openModal(els.addMonthModal);
+      });
+
+      els.createMonthConfirmBtn.addEventListener('click', () => {
+        persistLocal(false);
+        const mIdx = parseInt(els.newMonthSelect.value, 10);
+        const yr = parseInt(els.newYearInput.value, 10);
+        if (isNaN(yr) || yr < 2000 || yr > 2100) {
+          showToast('Enter a valid year between 2000 and 2100.', true);
+          return;
+        }
+        const key = `${yr}-${String(mIdx).padStart(2, '0')}`;
+        if (!appState.records[key]) {
+          appState.records[key] = createEmptyRecord(
+            key,
+            els.copyProfileCheck.checked ? appState.records[appState.activeKey] : null
+          );
+        }
+        appState.activeKey = key;
+        renderMonthDropdown();
+        renderActiveSheet();
+        persistLocal(false);
+        closeAllModals();
+        showToast(`Switched to ${formatMonthKey(key)}`);
+      });
+
+      els.openHistoryBtn.addEventListener('click', () => {
+        persistLocal(false);
+        renderHistoryModal();
+        openModal(els.historyModal);
+      });
+
+      els.historyList.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const key = btn.dataset.key;
+
+        if (action === 'open') {
+          appState.activeKey = key;
+          renderMonthDropdown();
+          renderActiveSheet();
+          persistLocal(false);
+          closeAllModals();
+          showToast(`Opened ${formatMonthKey(key)}`);
+        } else if (action === 'delete') {
+          if (Object.keys(appState.records).length <= 1) {
+            showToast('At least one month record must stay.', true);
+            return;
+          }
+          delete appState.records[key];
+          if (appState.activeKey === key) {
+            appState.activeKey = Object.keys(appState.records).sort()[0];
+          }
+          renderMonthDropdown();
+          renderActiveSheet();
+          persistLocal(false);
+          renderHistoryModal();
+          showToast(`Deleted ${formatMonthKey(key)}`);
+        }
+      });
+
+      els.exportBackupBtn.addEventListener('click', () => {
+        persistLocal(false);
+        const exportObj = {
+          system: 'HASAN SYSTEM',
+          owner: 'Ssb-dev-hasan',
+          dbUrl: appState.dbUrl,
+          exportedAt: new Date().toISOString(),
+          records: appState.records
+        };
+        const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `HASAN_SYSTEM_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Exported JSON backup!');
+      });
+
+      els.importBackupFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          try {
+            const parsed = JSON.parse(evt.target.result);
+            if (!parsed || typeof parsed.records !== 'object') {
+              throw new Error('Invalid backup format');
+            }
+            appState.records = { ...appState.records, ...parsed.records };
+            if (parsed.dbUrl && !appState.dbUrl) {
+              appState.dbUrl = parsed.dbUrl;
+              els.dbUrlInput.value = appState.dbUrl;
+            }
+            const sortedKeys = Object.keys(appState.records).sort();
+            appState.activeKey = sortedKeys[sortedKeys.length - 1];
+            renderMonthDropdown();
+            renderActiveSheet();
+            persistLocal(false);
+            renderHistoryModal();
+            showToast('Imported backup successfully!');
+          } catch (err) {
+            showToast('Invalid JSON backup file.', true);
+          } finally {
+            els.importBackupFile.value = '';
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      document.querySelectorAll('.close-modal').forEach((btn) => {
+        btn.addEventListener('click', closeAllModals);
+      });
+
+      [els.addMonthModal, els.historyModal].forEach((modal) => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeAllModals();
+        });
+      });
+
+      // Boot Application
+      loadState();
+      renderMonthDropdown();
+      renderActiveSheet();
+
+      if (appState.dbUrl) {
+        syncRemoteModuleControl();
+        if (els.empId.value.trim()) {
+          loadRecordFromCloud(true);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
+```
