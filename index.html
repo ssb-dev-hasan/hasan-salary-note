@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,7 +14,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- html2pdf.js (includes jsPDF & html2canvas) for Clean A4 PDF Export -->
+  <!-- html2pdf.js (includes jsPDF & html2canvas) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script>
@@ -46,7 +47,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Hide number input spinners for clean spreadsheet cells & PDF output */
+    /* Hide native numeric spin buttons for clean spreadsheet cells & PDF output */
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -56,7 +57,7 @@
       -moz-appearance: textfield;
     }
 
-    /* Table Grid Borders */
+    /* Spreadsheet Table Grid Borders */
     .meta-table td,
     .record-table th,
     .record-table td,
@@ -159,7 +160,7 @@
       color: transparent !important;
     }
 
-    /* Native Browser Print Fallback */
+    /* Native Browser / WebView Print Styles */
     @media print {
       @page {
         size: A4 portrait;
@@ -227,7 +228,7 @@
         </button>
       </div>
 
-      <!-- Row 2: Action Buttons -->
+      <!-- Row 2: Action Buttons (History, Download PDF, Save Data, Cloud Sync, Open in Browser, DB Link) -->
       <div class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100">
         <button
           id="openHistoryBtn"
@@ -266,6 +267,16 @@
         </button>
 
         <button
+          id="openInBrowserBtn"
+          type="button"
+          title="Open in external browser if WebView restricts file downloads"
+          class="bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 font-bold text-xs sm:text-sm px-3 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
+        >
+          <span>🌐</span>
+          <span>Open in Browser</span>
+        </button>
+
+        <button
           id="toggleDbBarBtn"
           type="button"
           class="ml-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
@@ -287,7 +298,7 @@
             placeholder="https://your-project-default-rtdb.firebaseio.com"
             class="flex-1 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <div class="flex items-center gap-1.5">
+          <div class="flex flex-wrap items-center gap-1.5">
             <button
               id="cloudLoadBtn"
               type="button"
@@ -309,7 +320,7 @@
           </div>
         </div>
 
-        <!-- Quick Productivity Actions -->
+        <!-- Quick Productivity Actions & REST Endpoint Preview -->
         <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
           <span>Path: <code id="previewRestPath" class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">salary_records/DEFAULT/October_2026.json</code></span>
           <div class="flex items-center gap-2">
@@ -643,7 +654,7 @@
     (function () {
       'use strict';
 
-      // Freeze owner identity constant
+      // Frozen owner brand constants to resist script-level mutation
       const OWNER_CONFIG = Object.freeze({
         brand: 'Ssb-dev-hasan',
         footerText: 'Powered by Ssb-dev-hasan',
@@ -728,7 +739,7 @@
           label.style.setProperty('opacity', '1', 'important');
         }
 
-        // 3. Ensure sheet-embedded watermark & footer credit stay intact
+        // 3. Ensure sheet-embedded watermark & footer credit remain intact
         const sheetWm = document.getElementById('sheetWatermarkBg');
         if (sheetWm) {
           if (sheetWm.textContent !== OWNER_CONFIG.brand) {
@@ -746,14 +757,13 @@
         }
       }
 
-      // Initial enforcement
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', enforceWatermarkIntegrity);
       } else {
         enforceWatermarkIntegrity();
       }
 
-      // MutationObserver Watchdog to prevent removal or tampering via DevTools
+      // MutationObserver Watchdog to restore watermark if removed, hidden, or edited
       let isRestoring = false;
       const watchdog = new MutationObserver(() => {
         if (isRestoring) return;
@@ -772,7 +782,7 @@
         characterData: true
       });
 
-      // Expose frozen PDF watermark helper
+      // Expose frozen owner brand getter for PDF stamping
       window.__ssbGetOwnerBrand = Object.freeze(() => OWNER_CONFIG.brand);
     })();
   </script>
@@ -782,8 +792,8 @@
     (function () {
       'use strict';
 
-      const STORAGE_KEY = 'hasan_system_salary_records_v3';
-      const DB_URL_KEY = 'hasan_system_rtdb_url_v3';
+      const STORAGE_KEY = 'hasan_system_salary_records_v4';
+      const DB_URL_KEY = 'hasan_system_rtdb_url_v4';
 
       const MONTHS = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -791,7 +801,7 @@
       ];
       const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-      // Pre-seeded months per requirements
+      // Default months including October 2026, November 2026, December 2026, January 2027+
       const PRESET_MONTH_KEYS = [
         '2026-09', // October 2026
         '2026-10', // November 2026
@@ -822,6 +832,7 @@
         pdfBtnLabel: document.getElementById('pdfBtnLabel'),
         saveLocalBtn: document.getElementById('saveLocalBtn'),
         cloudSyncBtn: document.getElementById('cloudSyncBtn'),
+        openInBrowserBtn: document.getElementById('openInBrowserBtn'),
         toggleDbBarBtn: document.getElementById('toggleDbBarBtn'),
         dbDot: document.getElementById('dbDot'),
 
@@ -883,7 +894,7 @@
         toastTimeout = setTimeout(() => {
           els.toast.classList.remove('opacity-100', 'translate-y-0');
           els.toast.classList.add('opacity-0', 'translate-y-2');
-        }, 2800);
+        }, 3000);
       }
 
       function updateDbStatus(text, type = 'local') {
@@ -903,6 +914,20 @@
       function formatMonthKey(key) {
         const [y, m] = key.split('-');
         return `${MONTHS[parseInt(m, 10)]} ${parseInt(y, 10)}`;
+      }
+
+      function parseMonthParamToKey(monthParam) {
+        if (!monthParam) return null;
+        const cleaned = monthParam.trim().replace(/_/g, ' ');
+        const parts = cleaned.split(/\s+/);
+        if (parts.length === 2) {
+          const mIdx = MONTHS.findIndex((m) => m.toLowerCase() === parts[0].toLowerCase());
+          const yr = parseInt(parts[1], 10);
+          if (mIdx >= 0 && !isNaN(yr) && yr >= 2000 && yr <= 2100) {
+            return `${yr}-${String(mIdx).padStart(2, '0')}`;
+          }
+        }
+        return null;
       }
 
       function getDaysCount(year, monthIdx) {
@@ -972,28 +997,34 @@
           console.error('Failed to read localStorage:', err);
         }
 
-        // Ensure all preset months exist in dropdown
+        // Seed default months including October 2026 .. March 2027
         PRESET_MONTH_KEYS.forEach((k) => {
           if (!appState.records[k]) {
             appState.records[k] = createEmptyRecord(k);
           }
         });
 
-        if (!appState.records[appState.activeKey]) {
-          appState.activeKey = '2026-09';
-        }
-
-        // Read URL Query Parameters (?db=...&id=...&name=...&loc=...&dept=...)
+        // Parse URL query parameters (?db=...&id=...&name=...&loc=...&dept=...&month=...)
         const params = new URLSearchParams(window.location.search);
         const qDb = params.get('db');
         const qId = params.get('id');
         const qName = params.get('name');
         const qLoc = params.get('loc');
         const qDept = params.get('dept');
+        const qMonthKey = parseMonthParamToKey(params.get('month'));
 
         if (qDb) {
           appState.dbUrl = qDb.trim();
           localStorage.setItem(DB_URL_KEY, appState.dbUrl);
+        }
+
+        if (qMonthKey) {
+          if (!appState.records[qMonthKey]) {
+            appState.records[qMonthKey] = createEmptyRecord(qMonthKey);
+          }
+          appState.activeKey = qMonthKey;
+        } else if (!appState.records[appState.activeKey]) {
+          appState.activeKey = '2026-09';
         }
 
         const activeRec = appState.records[appState.activeKey];
@@ -1328,7 +1359,7 @@
         }
       }
 
-      // Clean A4 PDF Export with Direct 'Ssb-dev-hasan' Diagonal Watermark Stamping on Every Page
+      // WebView-Friendly A4 PDF Export with Diagonal + Footer 'Ssb-dev-hasan' Watermark on Every Page
       async function downloadStampedA4Pdf() {
         if (!appState.allowPdf) return;
         persistLocal(false);
@@ -1351,7 +1382,7 @@
           const worker = html2pdf().set({
             margin: [5, 5, 5, 5],
             filename: filename,
-            image: { type: 'jpeg', quality: 0.98 },
+            image: { type: 'jpeg', quality: 0.96 },
             html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
@@ -1366,6 +1397,7 @@
             const pageW = pdf.internal.pageSize.getWidth();
             const pageH = pdf.internal.pageSize.getHeight();
 
+            // Diagonal watermark across center of page
             pdf.saveGraphicsState();
             if (typeof pdf.GState === 'function') {
               pdf.setGState(new pdf.GState({ opacity: 0.11 }));
@@ -1378,18 +1410,54 @@
               angle: 32
             });
             pdf.restoreGraphicsState();
+
+            // Footer owner watermark on every page
+            pdf.saveGraphicsState();
+            if (typeof pdf.GState === 'function') {
+              pdf.setGState(new pdf.GState({ opacity: 0.65 }));
+            }
+            pdf.setTextColor(71, 85, 105);
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(8);
+            pdf.text(`Watermark: ${ownerBrand}  •  Page ${page} of ${totalPages}`, pageW / 2, pageH - 3.5, {
+              align: 'center'
+            });
+            pdf.restoreGraphicsState();
           }
 
-          await worker.save();
-          showToast(`Downloaded ${filename}`);
+          // Generate Data URI so WebView can download via anchor element even if blob: is restricted
+          const pdfDataUri = pdf.output('datauristring');
+          const link = document.createElement('a');
+          link.href = pdfDataUri;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          showToast(`PDF ready: ${filename} (Tap "Open in Browser" if WebView blocks save)`);
         } catch (err) {
           console.error('PDF export error:', err);
+          showToast('Opening print/save dialog...', true);
           window.print();
         } finally {
           els.printableSheet.classList.remove('pdf-export-mode');
           els.pdfBtnLabel.textContent = origLabel;
           els.downloadPdfBtn.disabled = false;
         }
+      }
+
+      // Open current module with current state in external browser (helps WebView users save PDFs)
+      function openInExternalBrowser() {
+        persistLocal(false);
+        const url = new URL(window.location.href);
+        if (els.empId.value.trim()) url.searchParams.set('id', els.empId.value.trim());
+        if (els.empName.value.trim()) url.searchParams.set('name', els.empName.value.trim());
+        if (els.empLocation.value.trim()) url.searchParams.set('loc', els.empLocation.value.trim());
+        if (els.empDept.value.trim()) url.searchParams.set('dept', els.empDept.value.trim());
+        url.searchParams.set('month', formatMonthKey(appState.activeKey));
+        if (appState.dbUrl) url.searchParams.set('db', appState.dbUrl);
+
+        window.open(url.toString(), '_blank', 'noopener,noreferrer');
       }
 
       // History Modal Rendering
@@ -1471,6 +1539,7 @@
       els.cloudLoadBtn.addEventListener('click', () => loadRecordFromCloud(false));
       els.syncControlBtn.addEventListener('click', syncRemoteModuleControl);
       els.downloadPdfBtn.addEventListener('click', downloadStampedA4Pdf);
+      els.openInBrowserBtn.addEventListener('click', openInExternalBrowser);
 
       els.fillMonSatBtn.addEventListener('click', () => {
         const [yStr, mStr] = appState.activeKey.split('-');
