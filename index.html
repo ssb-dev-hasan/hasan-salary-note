@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -277,7 +276,7 @@
         </button>
 
         <button
-          id="toggleDbBarBtn"
+          id="openDbModalBtn"
           type="button"
           class="ml-auto bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs px-3 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer"
         >
@@ -286,59 +285,24 @@
         </button>
       </div>
 
-      <!-- Row 3: Collapsible Firebase Realtime Database (.json REST) Bar -->
-      <div id="dbConfigBar" class="hidden mt-3 pt-3 border-t border-slate-100 space-y-2">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-          <label for="dbUrlInput" class="text-xs font-bold text-slate-700 shrink-0">
-            Firebase Realtime DB URL:
-          </label>
-          <input
-            id="dbUrlInput"
-            type="url"
-            placeholder="https://your-project-default-rtdb.firebaseio.com"
-            class="flex-1 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <div class="flex flex-wrap items-center gap-1.5">
-            <button
-              id="cloudLoadBtn"
-              type="button"
-              class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer"
-            >
-              🔄 Load Cloud
-            </button>
-            <button
-              id="syncControlBtn"
-              type="button"
-              title="Sync remote config from app_control/modules/salary.json"
-              class="bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer"
-            >
-              ⚙️ Sync Config
-            </button>
-            <span id="dbStatusBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 whitespace-nowrap">
-              Local Mode
-            </span>
-          </div>
-        </div>
-
-        <!-- Quick Productivity Actions & REST Endpoint Preview -->
-        <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-          <span>Path: <code id="previewRestPath" class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">salary_records/DEFAULT/October_2026.json</code></span>
-          <div class="flex items-center gap-2">
-            <button
-              id="fillMonSatBtn"
-              type="button"
-              class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold px-2.5 py-1 rounded-lg transition cursor-pointer"
-            >
-              ⚡ Fill 8h (Mon–Sat)
-            </button>
-            <button
-              id="clearSheetBtn"
-              type="button"
-              class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold px-2.5 py-1 rounded-lg transition cursor-pointer"
-            >
-              🧹 Clear Hours
-            </button>
-          </div>
+      <!-- Quick Productivity Toolbar -->
+      <div class="mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+        <span>Active Endpoint: <code id="previewRestPath" class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">salary_records/DEFAULT/October_2026.json</code></span>
+        <div class="flex items-center gap-2">
+          <button
+            id="fillMonSatBtn"
+            type="button"
+            class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-semibold px-2.5 py-1 rounded-lg transition cursor-pointer"
+          >
+            ⚡ Fill 8h (Mon–Sat)
+          </button>
+          <button
+            id="clearSheetBtn"
+            type="button"
+            class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold px-2.5 py-1 rounded-lg transition cursor-pointer"
+          >
+            🧹 Clear Hours
+          </button>
         </div>
       </div>
     </header>
@@ -575,6 +539,111 @@
     </main>
   </div>
 
+  <!-- ==================== MODAL: DB LINK & FIREBASE SYNC ==================== -->
+  <div id="dbLinkModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Firebase Realtime DB Link</h2>
+          <p class="text-xs text-slate-500">Configure .json REST endpoint &amp; remote module control.</p>
+        </div>
+        <button type="button" class="close-modal text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none cursor-pointer">&times;</button>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        <div>
+          <label for="dbUrlInput" class="block text-xs font-bold text-slate-700 mb-1">
+            Realtime Database Root URL
+          </label>
+          <input
+            id="dbUrlInput"
+            type="url"
+            placeholder="https://your-project-default-rtdb.firebaseio.com"
+            class="w-full text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div class="flex items-center justify-between gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+          <span id="dbStatusBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700">
+            Local Mode
+          </span>
+          <code id="modalRestPath" class="text-[11px] text-slate-600 truncate">salary_records/DEFAULT/October_2026.json</code>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 pt-1">
+          <button
+            id="modalSaveDbBtn"
+            type="button"
+            class="bg-[#0066e6] hover:bg-[#0055c4] text-white text-xs font-bold py-2.5 px-2 rounded-xl transition cursor-pointer"
+          >
+            Save Link
+          </button>
+          <button
+            id="cloudLoadBtn"
+            type="button"
+            class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 px-2 rounded-xl transition cursor-pointer"
+          >
+            🔄 Load Cloud
+          </button>
+          <button
+            id="syncControlBtn"
+            type="button"
+            class="bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-bold py-2.5 px-2 rounded-xl transition cursor-pointer"
+          >
+            ⚙️ Sync Config
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 flex justify-end">
+        <button type="button" class="close-modal px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: WEBVIEW PRINT / PDF GUIDE ==================== -->
+  <div id="pdfGuideModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Print / Save as PDF Guide</h2>
+          <p class="text-xs text-slate-500">Complete PDF export inside WebView or external browser.</p>
+        </div>
+        <button type="button" class="close-modal text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none cursor-pointer">&times;</button>
+      </div>
+
+      <div class="mt-3.5 space-y-2.5 text-xs sm:text-sm text-slate-700">
+        <p id="pdfGuideReason" class="bg-amber-50 border border-amber-200 text-amber-950 rounded-xl p-3 text-xs font-medium">
+          If your WebView blocks direct file or print dialogs, tap <strong>Trigger Print</strong> or open this record in your external browser via <strong>Open in Browser</strong>.
+        </p>
+        <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-600">
+          <li>Select <strong>Save as PDF</strong> in the print destination menu if available.</li>
+          <li>Or tap <strong>Open in Browser</strong> to launch Chrome/browser with your current employee and month data pre-filled.</li>
+        </ol>
+      </div>
+
+      <div class="mt-5 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <button
+            id="guideTriggerPrintBtn"
+            type="button"
+            class="px-3.5 py-2 rounded-xl bg-[#5842e3] hover:bg-[#4832d4] text-white text-xs font-bold cursor-pointer"
+          >
+            🖨 Trigger Print
+          </button>
+          <button
+            id="guideOpenBrowserBtn"
+            type="button"
+            class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-xs font-bold cursor-pointer"
+          >
+            🌐 Open in Browser
+          </button>
+        </div>
+        <button type="button" class="close-modal px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 cursor-pointer">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== MODAL: ADD NEW MONTH ==================== -->
   <div id="addMonthModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 p-4">
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-sm p-5">
@@ -792,8 +861,8 @@
     (function () {
       'use strict';
 
-      const STORAGE_KEY = 'hasan_system_salary_records_v5';
-      const DB_URL_KEY = 'hasan_system_rtdb_url_v5';
+      const STORAGE_KEY = 'hasan_system_salary_records_v6';
+      const DB_URL_KEY = 'hasan_system_rtdb_url_v6';
 
       const MONTHS = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -833,10 +902,12 @@
         saveLocalBtn: document.getElementById('saveLocalBtn'),
         cloudSyncBtn: document.getElementById('cloudSyncBtn'),
         openInBrowserBtn: document.getElementById('openInBrowserBtn'),
-        toggleDbBarBtn: document.getElementById('toggleDbBarBtn'),
+        openDbModalBtn: document.getElementById('openDbModalBtn'),
         dbDot: document.getElementById('dbDot'),
 
-        dbConfigBar: document.getElementById('dbConfigBar'),
+        dbLinkModal: document.getElementById('dbLinkModal'),
+        modalSaveDbBtn: document.getElementById('modalSaveDbBtn'),
+        modalRestPath: document.getElementById('modalRestPath'),
         dbUrlInput: document.getElementById('dbUrlInput'),
         cloudLoadBtn: document.getElementById('cloudLoadBtn'),
         syncControlBtn: document.getElementById('syncControlBtn'),
@@ -844,6 +915,11 @@
         previewRestPath: document.getElementById('previewRestPath'),
         fillMonSatBtn: document.getElementById('fillMonSatBtn'),
         clearSheetBtn: document.getElementById('clearSheetBtn'),
+
+        pdfGuideModal: document.getElementById('pdfGuideModal'),
+        pdfGuideReason: document.getElementById('pdfGuideReason'),
+        guideTriggerPrintBtn: document.getElementById('guideTriggerPrintBtn'),
+        guideOpenBrowserBtn: document.getElementById('guideOpenBrowserBtn'),
 
         empName: document.getElementById('empName'),
         empId: document.getElementById('empId'),
@@ -974,7 +1050,11 @@
       }
 
       function updatePathPreview() {
-        dom.previewRestPath.textContent = `salary_records/${sanitizeEmpId()}/${monthSlug()}.json`;
+        const endpointPath = `salary_records/${sanitizeEmpId()}/${monthSlug()}.json`;
+        dom.previewRestPath.textContent = endpointPath;
+        if (dom.modalRestPath) {
+          dom.modalRestPath.textContent = endpointPath;
+        }
       }
 
       function initStateFromStorageAndQuery() {
@@ -1270,7 +1350,7 @@
         saveToLocalStorage(false);
         const endpoint = recordEndpointUrl();
         if (!endpoint) {
-          dom.dbConfigBar.classList.remove('hidden');
+          showModal(dom.dbLinkModal);
           dom.dbUrlInput.focus();
           notify('Enter a Firebase Realtime DB URL first.', true);
           return;
@@ -1314,7 +1394,7 @@
         const endpoint = recordEndpointUrl();
         if (!endpoint) {
           if (!quietIfEmpty) {
-            dom.dbConfigBar.classList.remove('hidden');
+            showModal(dom.dbLinkModal);
             notify('Enter a Firebase Realtime DB URL first.', true);
           }
           return;
@@ -1354,77 +1434,20 @@
       }
 
       // WebView-Friendly A4 PDF Export with Diagonal + Footer 'Ssb-dev-hasan' Watermark on Every Page
-      function isInsideAppWebView() {
-        const ua = navigator.userAgent || '';
-        const isAndroidWebView = /\bwv\b|WebView/i.test(ua) || (/Android/i.test(ua) && !/Chrome\/[.0-9]* Mobile/i.test(ua) && /Version\/[.0-9]*/i.test(ua));
-        const isIosWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
-        const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
-        return Boolean(isAndroidWebView || isIosWebView || isStandalone || window.Android);
+      function openPrintGuideModal(reasonText) {
+        if (reasonText && dom.pdfGuideReason) {
+          dom.pdfGuideReason.innerHTML = reasonText;
+        }
+        showModal(dom.pdfGuideModal);
       }
 
-      function buildShareableBrowserUrl() {
-        const shareUrl = new URL(window.location.href);
-        if (dom.empId.value.trim()) shareUrl.searchParams.set('id', dom.empId.value.trim());
-        if (dom.empName.value.trim()) shareUrl.searchParams.set('name', dom.empName.value.trim());
-        if (dom.empLocation.value.trim()) shareUrl.searchParams.set('loc', dom.empLocation.value.trim());
-        if (dom.empDept.value.trim()) shareUrl.searchParams.set('dept', dom.empDept.value.trim());
-        shareUrl.searchParams.set('month', keyToLabel(state.activeKey));
-        if (state.dbUrl) shareUrl.searchParams.set('db', state.dbUrl);
-        shareUrl.searchParams.set('auto_pdf', '1');
-        return shareUrl.toString();
-      }
-
-      function launchExternalBrowser(targetUrl, showNotice = true) {
-        const finalUrl = targetUrl || buildShareableBrowserUrl();
-        const isAndroid = /Android/i.test(navigator.userAgent || '');
-
-        if (showNotice) {
-          notify('Launching external browser to complete PDF download...');
-        }
-
-        if (isAndroid && /^https?:\/\//i.test(finalUrl)) {
-          const scheme = finalUrl.startsWith('https://') ? 'https' : 'http';
-          const withoutScheme = finalUrl.replace(/^https?:\/\//i, '');
-          const chromeIntentUrl = `intent://${withoutScheme}#Intent;scheme=${scheme};package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(finalUrl)};end`;
-
-          try {
-            window.location.href = chromeIntentUrl;
-            setTimeout(() => {
-              try {
-                const win = window.open(finalUrl, '_blank', 'noopener,noreferrer');
-                if (!win) {
-                  const anchor = document.createElement('a');
-                  anchor.href = finalUrl;
-                  anchor.target = '_blank';
-                  anchor.rel = 'noopener noreferrer';
-                  document.body.appendChild(anchor);
-                  anchor.click();
-                  document.body.removeChild(anchor);
-                }
-              } catch (fallbackErr) {
-                console.warn('Secondary browser fallback warning:', fallbackErr);
-              }
-            }, 650);
-            return;
-          } catch (intentErr) {
-            console.warn('Android intent launch warning:', intentErr);
-          }
-        }
-
+      function safeTriggerPrint() {
         try {
-          const openedWin = window.open(finalUrl, '_blank', 'noopener,noreferrer');
-          if (!openedWin) {
-            const anchor = document.createElement('a');
-            anchor.href = finalUrl;
-            anchor.target = '_blank';
-            anchor.rel = 'noopener noreferrer';
-            document.body.appendChild(anchor);
-            anchor.click();
-            document.body.removeChild(anchor);
-          }
-        } catch (err) {
-          console.warn('External browser open error:', err);
-          window.location.href = finalUrl;
+          window.print();
+          return true;
+        } catch (printErr) {
+          console.warn('window.print() blocked or failed:', printErr);
+          return false;
         }
       }
 
@@ -1432,23 +1455,14 @@
         if (!state.allowPdf) return;
         saveToLocalStorage(false);
 
-        if (state.dbUrl && dom.empId.value.trim()) {
-          pushRecordToCloud().catch(() => {});
-        }
-
-        // Inside an app WebView, automatically launch external browser so PDF completes reliably
-        if (isInsideAppWebView()) {
-          const browserUrl = buildShareableBrowserUrl();
-          notify('App WebView detected — opening external browser for PDF export...');
-          launchExternalBrowser(browserUrl, false);
-          return;
-        }
-
         const safeEmp = (dom.empName.value || 'Employee').replace(/[^a-zA-Z0-9_-]+/g, '_');
         const filename = `${safeEmp}_${monthSlug()}_Salary_Record.pdf`;
 
         if (typeof html2pdf === 'undefined') {
-          window.print();
+          const printed = safeTriggerPrint();
+          if (!printed) {
+            openPrintGuideModal('Direct PDF library and print dialog are restricted in this WebView. Use <strong>Open in Browser</strong> to export PDF.');
+          }
           return;
         }
 
@@ -1504,21 +1518,43 @@
             pdf.restoreGraphicsState();
           }
 
+          // Attempt direct download via Data URI + <a download> and Blob + <a download>
+          const dataUri = pdf.output('datauristring');
           const pdfBlob = pdf.output('blob');
           const blobUrl = URL.createObjectURL(pdfBlob);
-          const link = document.createElement('a');
-          link.href = blobUrl;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+
+          let triggeredDirectDownload = false;
+          try {
+            const dlLink = document.createElement('a');
+            dlLink.href = dataUri || blobUrl;
+            dlLink.download = filename;
+            dlLink.style.display = 'none';
+            document.body.appendChild(dlLink);
+            dlLink.click();
+            document.body.removeChild(dlLink);
+            triggeredDirectDownload = true;
+          } catch (anchorErr) {
+            console.warn('Direct anchor download warning:', anchorErr);
+          }
+
           setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 
-          notify(`PDF generated: ${filename}`);
+          if (triggeredDirectDownload) {
+            notify(`PDF prepared (${filename}). Opening print/save option...`);
+          }
+
+          const printStarted = safeTriggerPrint();
+          if (!printStarted && !triggeredDirectDownload) {
+            openPrintGuideModal('WebView blocked direct PDF download and system print. Use <strong>Open in Browser</strong> to download the PDF cleanly.');
+          }
         } catch (err) {
           console.error('PDF export error:', err);
-          notify('Opening system Print / Save as PDF...', true);
-          window.print();
+          const printStarted = safeTriggerPrint();
+          if (!printStarted) {
+            openPrintGuideModal('Unable to generate PDF automatically in this WebView. Tap <strong>Open in Browser</strong> to save as PDF.');
+          } else {
+            notify('Opened system Print / Save as PDF.', true);
+          }
         } finally {
           dom.printableSheet.classList.remove('pdf-export-mode');
           dom.pdfBtnLabel.textContent = prevLabel;
@@ -1529,7 +1565,39 @@
       // Open current state in external browser (Android intent:// Chrome with target="_blank" anchor fallback)
       function openInBrowser() {
         saveToLocalStorage(false);
-        launchExternalBrowser(buildShareableBrowserUrl(), true);
+        const shareUrl = new URL(window.location.href);
+        if (dom.empId.value.trim()) shareUrl.searchParams.set('id', dom.empId.value.trim());
+        if (dom.empName.value.trim()) shareUrl.searchParams.set('name', dom.empName.value.trim());
+        if (dom.empLocation.value.trim()) shareUrl.searchParams.set('loc', dom.empLocation.value.trim());
+        if (dom.empDept.value.trim()) shareUrl.searchParams.set('dept', dom.empDept.value.trim());
+        shareUrl.searchParams.set('month', keyToLabel(state.activeKey));
+        if (state.dbUrl) shareUrl.searchParams.set('db', state.dbUrl);
+
+        const targetUrl = shareUrl.toString();
+        const isAndroid = /Android/i.test(navigator.userAgent || '');
+
+        if (isAndroid && /^https?:\/\//i.test(targetUrl)) {
+          const scheme = targetUrl.startsWith('https://') ? 'https' : 'http';
+          const cleanHostAndPath = targetUrl.replace(/^https?:\/\//i, '');
+          const intentUrl = `intent://${cleanHostAndPath}#Intent;scheme=${scheme};package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(targetUrl)};end`;
+
+          try {
+            window.location.href = intentUrl;
+            notify('Opening in Chrome / external browser...');
+            return;
+          } catch (intentErr) {
+            console.warn('Android intent error, falling back to anchor:', intentErr);
+          }
+        }
+
+        const anchor = document.createElement('a');
+        anchor.href = targetUrl;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        notify('Opened link in new browser tab.');
       }
 
       // History Modal
@@ -1568,7 +1636,7 @@
       }
 
       function hideModals() {
-        [dom.addMonthModal, dom.historyModal].forEach((m) => {
+        [dom.addMonthModal, dom.historyModal, dom.dbLinkModal, dom.pdfGuideModal].forEach((m) => {
           m.classList.add('hidden');
           m.classList.remove('flex');
         });
@@ -1596,8 +1664,17 @@
         }
       });
 
-      dom.toggleDbBarBtn.addEventListener('click', () => {
-        dom.dbConfigBar.classList.toggle('hidden');
+      dom.openDbModalBtn.addEventListener('click', () => {
+        updatePathPreview();
+        showModal(dom.dbLinkModal);
+      });
+
+      dom.modalSaveDbBtn.addEventListener('click', () => {
+        state.dbUrl = dom.dbUrlInput.value.trim();
+        localStorage.setItem(DB_URL_KEY, state.dbUrl);
+        setDbBadge(state.dbUrl ? 'DB Linked' : 'Local Mode', state.dbUrl ? 'ok' : 'local');
+        saveToLocalStorage(false);
+        notify(state.dbUrl ? 'Firebase Realtime DB link saved!' : 'Cleared DB link (Local Mode).');
       });
 
       dom.dbUrlInput.addEventListener('change', () => {
@@ -1612,6 +1689,16 @@
       dom.syncControlBtn.addEventListener('click', syncModuleControlFromCloud);
       dom.downloadPdfBtn.addEventListener('click', downloadPDF);
       dom.openInBrowserBtn.addEventListener('click', openInBrowser);
+
+      dom.guideTriggerPrintBtn.addEventListener('click', () => {
+        hideModals();
+        safeTriggerPrint();
+      });
+
+      dom.guideOpenBrowserBtn.addEventListener('click', () => {
+        hideModals();
+        openInBrowser();
+      });
 
       dom.fillMonSatBtn.addEventListener('click', () => {
         const [yStr, mStr] = state.activeKey.split('-');
@@ -1767,7 +1854,7 @@
         btn.addEventListener('click', hideModals);
       });
 
-      [dom.addMonthModal, dom.historyModal].forEach((m) => {
+      [dom.addMonthModal, dom.historyModal, dom.dbLinkModal, dom.pdfGuideModal].forEach((m) => {
         m.addEventListener('click', (e) => {
           if (e.target === m) hideModals();
         });
@@ -1785,15 +1872,7 @@
           }
         });
       }
-
-      const startupParams = new URLSearchParams(window.location.search);
-      if (startupParams.get('auto_pdf') === '1' && !isInsideAppWebView()) {
-        setTimeout(() => {
-          downloadPDF();
-        }, 700);
-      }
     })();
   </script>
 </body>
 </html>
-```
