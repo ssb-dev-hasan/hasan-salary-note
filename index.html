@@ -1,9 +1,10 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HASAN SYSTEM — Monthly Working & Salary Record Template</title>
+  <title>HASAN SYSTEM — Monthly Working &amp; Salary Record Template</title>
 
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -13,7 +14,7 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- html2pdf.js (includes jsPDF & html2canvas) -->
+  <!-- html2pdf.js (bundles html2canvas + jsPDF) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <script>
@@ -46,7 +47,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Hide native numeric spin buttons for clean spreadsheet cells & PDF output */
+    /* Hide native number spinners for clean spreadsheet cells & PDF output */
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
       -webkit-appearance: none;
@@ -75,7 +76,7 @@
       box-shadow: inset 0 0 0 1.5px #2563eb;
     }
 
-    /* Sheet-embedded Watermark */
+    /* Sheet-embedded Diagonal Watermark */
     .sheet-container {
       position: relative;
       overflow: hidden;
@@ -132,7 +133,7 @@
       opacity: 1 !important;
     }
 
-    /* PDF Export Compact Mode (fits A4 Portrait cleanly) */
+    /* Compact A4 Portrait Layout During PDF Generation */
     .pdf-export-mode {
       background: #ffffff !important;
       padding: 6px !important;
@@ -159,7 +160,7 @@
       color: transparent !important;
     }
 
-    /* Native Browser / WebView Print Styles */
+    /* Clean Browser & WebView Print / Save-as-PDF Styles */
     @media print {
       @page {
         size: A4 portrait;
@@ -189,7 +190,7 @@
 </head>
 <body class="min-h-screen py-3 px-2 sm:px-4 md:py-5">
 
-  <!-- Locked Module Notice (triggered only if remote DB control explicitly sets enabled: false) -->
+  <!-- Remote Control Lock Banner (shown only if Firebase app_control/modules/salary sets enabled: false) -->
   <div id="moduleLockedBanner" class="hidden max-w-xl mx-auto mt-10 bg-white rounded-2xl shadow-lg border border-rose-200 p-6 text-center">
     <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center text-xl font-black">!</div>
     <h2 class="text-lg font-extrabold text-slate-900">Module Temporarily Disabled</h2>
@@ -197,10 +198,10 @@
     <p class="text-xs font-bold text-slate-400 mt-4">Owner: Ssb-dev-hasan</p>
   </div>
 
-  <!-- Main Application Wrapper -->
+  <!-- Main Application Shell -->
   <div id="appWrapper">
 
-    <!-- ==================== TOP CONTROL PANEL (HIDDEN IN PDF/PRINT) ==================== -->
+    <!-- ==================== TOP CONTROL PANEL ==================== -->
     <header class="no-print max-w-4xl mx-auto bg-white rounded-2xl shadow-md border border-slate-200/90 p-3.5 sm:p-4 mb-4">
       <!-- Row 1: Brand Badge + Month/Year Selector + Add New Month -->
       <div class="flex flex-wrap items-center justify-between gap-2.5">
@@ -227,7 +228,7 @@
         </button>
       </div>
 
-      <!-- Row 2: Action Buttons (History, Download PDF, Save Data, Cloud Sync, Open in Browser, DB Link) -->
+      <!-- Row 2: Action Buttons -->
       <div class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100">
         <button
           id="openHistoryBtn"
@@ -285,7 +286,7 @@
         </button>
       </div>
 
-      <!-- Row 3: Collapsible Firebase Realtime Database Link (.json REST) Bar -->
+      <!-- Row 3: Collapsible Firebase Realtime Database (.json REST) Bar -->
       <div id="dbConfigBar" class="hidden mt-3 pt-3 border-t border-slate-100 space-y-2">
         <div class="flex flex-col sm:flex-row sm:items-center gap-2">
           <label for="dbUrlInput" class="text-xs font-bold text-slate-700 shrink-0">
@@ -347,11 +348,11 @@
       id="printable-sheet"
       class="sheet-container max-w-4xl mx-auto bg-white rounded-2xl shadow-lg border border-slate-200 p-3.5 sm:p-6"
     >
-      <!-- Embedded Sheet Diagonal Watermark -->
+      <!-- Sheet Background Watermark -->
       <div id="sheetWatermarkBg" class="sheet-watermark-bg" aria-hidden="true">Ssb-dev-hasan</div>
 
       <div class="relative z-10">
-        <!-- Deep Navy Banner Title -->
+        <!-- Navy Banner Title -->
         <div
           id="sheetBannerTitle"
           class="bg-[#0f3d7a] text-white text-center font-bold text-base sm:text-xl py-2.5 px-4 rounded-xl mb-3.5 tracking-wide"
@@ -359,7 +360,7 @@
           Monthly Working and Salary Record Template
         </div>
 
-        <!-- Employee & Hourly Rates Grid -->
+        <!-- Employee & Rate Metadata Grid -->
         <div class="overflow-x-auto mb-3.5">
           <table class="meta-table w-full border-collapse text-xs sm:text-sm">
             <tbody>
@@ -461,7 +462,7 @@
           </table>
         </div>
 
-        <!-- Daily Working Hours & Salary Table -->
+        <!-- Daily Working Hours & Earnings Table -->
         <div class="overflow-x-auto rounded-lg">
           <table class="record-table w-full border-collapse text-center text-xs sm:text-[13px]">
             <thead>
@@ -477,14 +478,14 @@
               </tr>
             </thead>
             <tbody id="daysTableBody">
-              <!-- Populated dynamically for days 1..31 -->
+              <!-- Populated dynamically per month length (28..31 days) -->
             </tbody>
           </table>
         </div>
 
-        <!-- Summary & Totals Section -->
+        <!-- Summary & Net Payable Section -->
         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-start">
-          <!-- Left Table: Hours Breakdown -->
+          <!-- Hours Breakdown -->
           <table class="summary-table w-full border-collapse text-xs sm:text-sm">
             <tbody>
               <tr>
@@ -510,7 +511,7 @@
             </tbody>
           </table>
 
-          <!-- Right Table: Salary & Net Payable -->
+          <!-- Salary & Adjustments -->
           <table class="summary-table w-full border-collapse text-xs sm:text-sm">
             <tbody>
               <tr>
@@ -551,7 +552,7 @@
           </table>
         </div>
 
-        <!-- Signature Lines -->
+        <!-- Sign-off Lines -->
         <div class="mt-7 pt-2 grid grid-cols-2 gap-8 text-xs text-slate-700">
           <div>
             <div class="h-8 border-b border-dashed border-slate-400 mb-1.5"></div>
@@ -561,7 +562,7 @@
           <div>
             <div class="h-8 border-b border-dashed border-slate-400 mb-1.5"></div>
             <p class="font-bold text-slate-800">Authorized Manager</p>
-            <p class="text-[11px] text-slate-500">Approved & Verified</p>
+            <p class="text-[11px] text-slate-500">Approved &amp; Verified</p>
           </div>
         </div>
 
@@ -605,7 +606,7 @@
         </div>
         <label class="flex items-center gap-2 text-xs text-slate-600 cursor-pointer pt-1">
           <input id="copyProfileCheck" type="checkbox" checked class="rounded text-blue-600" />
-          <span>Copy current employee profile & hourly rates</span>
+          <span>Copy current employee profile &amp; hourly rates</span>
         </label>
       </div>
       <div class="mt-5 flex justify-end gap-2">
@@ -620,7 +621,7 @@
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-xl p-5 max-h-[88vh] flex flex-col">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <div>
-          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Saved History & JSON Backup</h2>
+          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Saved History &amp; JSON Backup</h2>
           <p class="text-xs text-slate-500">Load, delete, or export/import monthly records.</p>
         </div>
         <button type="button" class="close-modal text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none cursor-pointer">&times;</button>
@@ -643,18 +644,18 @@
     </div>
   </div>
 
-  <!-- ==================== TOAST NOTIFICATION ==================== -->
+  <!-- ==================== TOAST BANNER ==================== -->
   <div id="toast" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-2">
     <div id="toastMsg" class="bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl"></div>
   </div>
 
-  <!-- ==================== TAMPER-RESISTANT OWNER WATERMARK GUARD ==================== -->
+  <!-- ==================== TAMPER-RESISTANT WATERMARK WATCHDOG ==================== -->
   <script>
     (function () {
       'use strict';
 
-      // Frozen owner brand constants to resist script-level mutation
-      const OWNER_CONFIG = Object.freeze({
+      // Freeze owner brand identifiers against runtime reassignment
+      const OWNER_LOCK = Object.freeze({
         brand: 'Ssb-dev-hasan',
         footerText: 'Powered by Ssb-dev-hasan',
         layerId: 'ssb-owner-watermark-layer',
@@ -662,13 +663,13 @@
         styleId: 'ssb-guard-style'
       });
 
-      function enforceWatermarkIntegrity() {
-        // 1. Ensure immutable guard stylesheet exists
-        if (!document.getElementById(OWNER_CONFIG.styleId)) {
+      function restoreOwnerBranding() {
+        // 1. Ensure protective style block exists
+        if (!document.getElementById(OWNER_LOCK.styleId)) {
           const style = document.createElement('style');
-          style.id = OWNER_CONFIG.styleId;
+          style.id = OWNER_LOCK.styleId;
           style.textContent = `
-            #${OWNER_CONFIG.layerId} {
+            #${OWNER_LOCK.layerId} {
               position: fixed !important;
               inset: 0 !important;
               width: 100vw !important;
@@ -684,7 +685,7 @@
               opacity: 1 !important;
               visibility: visible !important;
             }
-            #${OWNER_CONFIG.textId} {
+            #${OWNER_LOCK.textId} {
               font-family: 'Inter', sans-serif !important;
               font-size: clamp(2rem, 7vw, 4.75rem) !important;
               font-weight: 900 !important;
@@ -709,11 +710,11 @@
           (document.head || document.documentElement).appendChild(style);
         }
 
-        // 2. Ensure fixed viewport overlay exists
-        let layer = document.getElementById(OWNER_CONFIG.layerId);
+        // 2. Ensure fixed full-viewport watermark layer & text node exist
+        let layer = document.getElementById(OWNER_LOCK.layerId);
         if (!layer && document.body) {
           layer = document.createElement('div');
-          layer.id = OWNER_CONFIG.layerId;
+          layer.id = OWNER_LOCK.layerId;
           layer.setAttribute('aria-hidden', 'true');
           document.body.appendChild(layer);
         }
@@ -724,25 +725,25 @@
           layer.style.setProperty('visibility', 'visible', 'important');
           layer.style.setProperty('opacity', '1', 'important');
 
-          let label = document.getElementById(OWNER_CONFIG.textId);
+          let label = document.getElementById(OWNER_LOCK.textId);
           if (!label) {
             label = document.createElement('div');
-            label.id = OWNER_CONFIG.textId;
+            label.id = OWNER_LOCK.textId;
             layer.appendChild(label);
           }
-          if (label.textContent !== OWNER_CONFIG.brand) {
-            label.textContent = OWNER_CONFIG.brand;
+          if (label.textContent !== OWNER_LOCK.brand) {
+            label.textContent = OWNER_LOCK.brand;
           }
           label.style.setProperty('display', 'block', 'important');
           label.style.setProperty('visibility', 'visible', 'important');
           label.style.setProperty('opacity', '1', 'important');
         }
 
-        // 3. Ensure sheet-embedded watermark & footer credit remain intact
+        // 3. Ensure sheet background watermark & footer credit stay intact
         const sheetWm = document.getElementById('sheetWatermarkBg');
         if (sheetWm) {
-          if (sheetWm.textContent !== OWNER_CONFIG.brand) {
-            sheetWm.textContent = OWNER_CONFIG.brand;
+          if (sheetWm.textContent !== OWNER_LOCK.brand) {
+            sheetWm.textContent = OWNER_LOCK.brand;
           }
           sheetWm.removeAttribute('hidden');
           sheetWm.style.setProperty('display', 'block', 'important');
@@ -751,48 +752,48 @@
         }
 
         const footerCredit = document.getElementById('footerOwnerCredit');
-        if (footerCredit && footerCredit.textContent !== OWNER_CONFIG.footerText) {
-          footerCredit.textContent = OWNER_CONFIG.footerText;
+        if (footerCredit && footerCredit.textContent !== OWNER_LOCK.footerText) {
+          footerCredit.textContent = OWNER_LOCK.footerText;
         }
       }
 
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', enforceWatermarkIntegrity);
+        document.addEventListener('DOMContentLoaded', restoreOwnerBranding);
       } else {
-        enforceWatermarkIntegrity();
+        restoreOwnerBranding();
       }
 
-      // MutationObserver Watchdog to restore watermark if removed, hidden, or edited
-      let isRestoring = false;
-      const watchdog = new MutationObserver(() => {
-        if (isRestoring) return;
-        isRestoring = true;
+      // Active MutationObserver watchdog to immediately restore watermark if removed or altered
+      let isGuarding = false;
+      const observer = new MutationObserver(() => {
+        if (isGuarding) return;
+        isGuarding = true;
         try {
-          enforceWatermarkIntegrity();
+          restoreOwnerBranding();
         } finally {
-          isRestoring = false;
+          isGuarding = false;
         }
       });
 
-      watchdog.observe(document.documentElement, {
+      observer.observe(document.documentElement, {
         childList: true,
         subtree: true,
         attributes: true,
         characterData: true
       });
 
-      // Expose frozen owner brand getter for PDF stamping
-      window.__ssbGetOwnerBrand = Object.freeze(() => OWNER_CONFIG.brand);
+      // Frozen accessor for PDF watermark stamping
+      window.__ssbGetOwnerBrand = Object.freeze(() => OWNER_LOCK.brand);
     })();
   </script>
 
-  <!-- ==================== MAIN SALARY & DATABASE APPLICATION SCRIPT ==================== -->
+  <!-- ==================== MAIN APPLICATION LOGIC ==================== -->
   <script>
     (function () {
       'use strict';
 
-      const STORAGE_KEY = 'hasan_system_salary_records_v4';
-      const DB_URL_KEY = 'hasan_system_rtdb_url_v4';
+      const STORAGE_KEY = 'hasan_system_salary_records_v5';
+      const DB_URL_KEY = 'hasan_system_rtdb_url_v5';
 
       const MONTHS = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -800,8 +801,8 @@
       ];
       const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-      // Default months including October 2026, November 2026, December 2026, January 2027+
-      const PRESET_MONTH_KEYS = [
+      // Default months including October 2026 .. March 2027
+      const DEFAULT_MONTH_KEYS = [
         '2026-09', // October 2026
         '2026-10', // November 2026
         '2026-11', // December 2026
@@ -810,14 +811,14 @@
         '2027-02'  // March 2027
       ];
 
-      let appState = {
-        activeKey: '2026-09', // Default October 2026
+      let state = {
+        activeKey: '2026-09',
         dbUrl: '',
         allowPdf: true,
         records: {}
       };
 
-      const els = {
+      const dom = {
         appWrapper: document.getElementById('appWrapper'),
         moduleLockedBanner: document.getElementById('moduleLockedBanner'),
         monthSelector: document.getElementById('monthSelector'),
@@ -881,44 +882,43 @@
         toastMsg: document.getElementById('toastMsg')
       };
 
-      let toastTimeout = null;
-      function showToast(msg, isError = false) {
-        els.toastMsg.textContent = msg;
-        els.toastMsg.className = isError
+      let toastTimer = null;
+      function notify(message, isError = false) {
+        dom.toastMsg.textContent = message;
+        dom.toastMsg.className = isError
           ? 'bg-rose-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl'
           : 'bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl';
-        els.toast.classList.remove('opacity-0', 'translate-y-2');
-        els.toast.classList.add('opacity-100', 'translate-y-0');
-        clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => {
-          els.toast.classList.remove('opacity-100', 'translate-y-0');
-          els.toast.classList.add('opacity-0', 'translate-y-2');
-        }, 3000);
+        dom.toast.classList.remove('opacity-0', 'translate-y-2');
+        dom.toast.classList.add('opacity-100', 'translate-y-0');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          dom.toast.classList.remove('opacity-100', 'translate-y-0');
+          dom.toast.classList.add('opacity-0', 'translate-y-2');
+        }, 3200);
       }
 
-      function updateDbStatus(text, type = 'local') {
-        els.dbStatusBadge.textContent = text;
-        if (type === 'ok') {
-          els.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 whitespace-nowrap';
-          els.dbDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-        } else if (type === 'err') {
-          els.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 whitespace-nowrap';
-          els.dbDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+      function setDbBadge(label, status = 'local') {
+        dom.dbStatusBadge.textContent = label;
+        if (status === 'ok') {
+          dom.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 whitespace-nowrap';
+          dom.dbDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        } else if (status === 'err') {
+          dom.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 whitespace-nowrap';
+          dom.dbDot.className = 'w-2 h-2 rounded-full bg-rose-500';
         } else {
-          els.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 whitespace-nowrap';
-          els.dbDot.className = 'w-2 h-2 rounded-full bg-slate-400';
+          dom.dbStatusBadge.className = 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 whitespace-nowrap';
+          dom.dbDot.className = 'w-2 h-2 rounded-full bg-slate-400';
         }
       }
 
-      function formatMonthKey(key) {
+      function keyToLabel(key) {
         const [y, m] = key.split('-');
         return `${MONTHS[parseInt(m, 10)]} ${parseInt(y, 10)}`;
       }
 
-      function parseMonthParamToKey(monthParam) {
-        if (!monthParam) return null;
-        const cleaned = monthParam.trim().replace(/_/g, ' ');
-        const parts = cleaned.split(/\s+/);
+      function parseMonthQuery(rawMonth) {
+        if (!rawMonth) return null;
+        const parts = rawMonth.trim().replace(/_/g, ' ').split(/\s+/);
         if (parts.length === 2) {
           const mIdx = MONTHS.findIndex((m) => m.toLowerCase() === parts[0].toLowerCase());
           const yr = parseInt(parts[1], 10);
@@ -929,180 +929,199 @@
         return null;
       }
 
-      function getDaysCount(year, monthIdx) {
-        return new Date(year, monthIdx + 1, 0).getDate();
+      function daysInMonth(year, monthIndex) {
+        return new Date(year, monthIndex + 1, 0).getDate();
       }
 
-      function escapeHtml(value) {
-        return String(value || '')
+      function escapeHtml(str) {
+        return String(str || '')
           .replace(/&/g, '&amp;')
           .replace(/"/g, '&quot;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;');
       }
 
-      function createEmptyRecord(key, template = null) {
+      function buildEmptyMonthRecord(key, baseProfile = null) {
         const [yStr, mStr] = key.split('-');
-        const totalDays = getDaysCount(parseInt(yStr, 10), parseInt(mStr, 10));
+        const totalDays = daysInMonth(parseInt(yStr, 10), parseInt(mStr, 10));
         const days = {};
         for (let d = 1; d <= totalDays; d++) {
           days[d] = { normal: '', ot: '', sunday: '', phd: '', remarks: '' };
         }
         return {
           key,
-          empName: template ? template.empName : '',
-          empId: template ? template.empId : '',
-          empLocation: template ? template.empLocation : '',
-          empDept: template ? template.empDept : '',
-          rateNormal: template ? template.rateNormal : '9',
-          rateOT: template ? template.rateOT : '13.5',
-          rateSunday: template ? template.rateSunday : '13.5',
-          ratePHD: template ? template.ratePHD : '13.5',
+          empName: baseProfile ? baseProfile.empName : '',
+          empId: baseProfile ? baseProfile.empId : '',
+          empLocation: baseProfile ? baseProfile.empLocation : '',
+          empDept: baseProfile ? baseProfile.empDept : '',
+          rateNormal: baseProfile ? baseProfile.rateNormal : '9',
+          rateOT: baseProfile ? baseProfile.rateOT : '13.5',
+          rateSunday: baseProfile ? baseProfile.rateSunday : '13.5',
+          ratePHD: baseProfile ? baseProfile.ratePHD : '13.5',
           allowance: '',
           deduction: '',
           days
         };
       }
 
-      function getSanitizedEmpId() {
-        const raw = (els.empId.value || 'DEFAULT').trim();
-        return raw.replace(/[.#$\[\]\/\\]+/g, '_') || 'DEFAULT';
+      function sanitizeEmpId() {
+        const clean = (dom.empId.value || 'DEFAULT').trim().replace(/[.#$\[\]\/\\]+/g, '_');
+        return clean || 'DEFAULT';
       }
 
-      function getMonthSlug() {
-        return formatMonthKey(appState.activeKey).replace(/\s+/g, '_');
+      function monthSlug() {
+        return keyToLabel(state.activeKey).replace(/\s+/g, '_');
       }
 
-      function updateRestPathPreview() {
-        els.previewRestPath.textContent = `salary_records/${getSanitizedEmpId()}/${getMonthSlug()}.json`;
+      function updatePathPreview() {
+        dom.previewRestPath.textContent = `salary_records/${sanitizeEmpId()}/${monthSlug()}.json`;
       }
 
-      function loadState() {
+      function initStateFromStorageAndQuery() {
         try {
-          const savedUrl = localStorage.getItem(DB_URL_KEY);
-          if (savedUrl) appState.dbUrl = savedUrl;
+          const savedDb = localStorage.getItem(DB_URL_KEY);
+          if (savedDb) state.dbUrl = savedDb;
 
-          const savedRaw = localStorage.getItem(STORAGE_KEY);
-          if (savedRaw) {
-            const parsed = JSON.parse(savedRaw);
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
             if (parsed && typeof parsed.records === 'object') {
-              appState.records = parsed.records;
-              if (parsed.activeKey && appState.records[parsed.activeKey]) {
-                appState.activeKey = parsed.activeKey;
+              state.records = parsed.records;
+              if (parsed.activeKey && state.records[parsed.activeKey]) {
+                state.activeKey = parsed.activeKey;
               }
             }
           }
         } catch (err) {
-          console.error('Failed to read localStorage:', err);
+          console.error('Local storage load error:', err);
         }
 
-        // Seed default months including October 2026 .. March 2027
-        PRESET_MONTH_KEYS.forEach((k) => {
-          if (!appState.records[k]) {
-            appState.records[k] = createEmptyRecord(k);
+        DEFAULT_MONTH_KEYS.forEach((k) => {
+          if (!state.records[k]) {
+            state.records[k] = buildEmptyMonthRecord(k);
           }
         });
 
-        // Parse URL query parameters (?db=...&id=...&name=...&loc=...&dept=...&month=...)
+        // Query parameter pre-fill: ?db=...&id=...&name=...&loc=...&dept=...&month=...
         const params = new URLSearchParams(window.location.search);
         const qDb = params.get('db');
         const qId = params.get('id');
         const qName = params.get('name');
         const qLoc = params.get('loc');
         const qDept = params.get('dept');
-        const qMonthKey = parseMonthParamToKey(params.get('month'));
+        const qMonthKey = parseMonthQuery(params.get('month'));
 
         if (qDb) {
-          appState.dbUrl = qDb.trim();
-          localStorage.setItem(DB_URL_KEY, appState.dbUrl);
+          state.dbUrl = qDb.trim();
+          localStorage.setItem(DB_URL_KEY, state.dbUrl);
         }
 
         if (qMonthKey) {
-          if (!appState.records[qMonthKey]) {
-            appState.records[qMonthKey] = createEmptyRecord(qMonthKey);
+          if (!state.records[qMonthKey]) {
+            state.records[qMonthKey] = buildEmptyMonthRecord(qMonthKey);
           }
-          appState.activeKey = qMonthKey;
-        } else if (!appState.records[appState.activeKey]) {
-          appState.activeKey = '2026-09';
+          state.activeKey = qMonthKey;
+        } else if (!state.records[state.activeKey]) {
+          state.activeKey = '2026-09';
         }
 
-        const activeRec = appState.records[appState.activeKey];
+        const activeRec = state.records[state.activeKey];
         if (qId !== null) activeRec.empId = qId;
         if (qName !== null) activeRec.empName = qName;
         if (qLoc !== null) activeRec.empLocation = qLoc;
         if (qDept !== null) activeRec.empDept = qDept;
 
-        els.dbUrlInput.value = appState.dbUrl || '';
-        if (appState.dbUrl) {
-          updateDbStatus('DB Linked', 'ok');
+        dom.dbUrlInput.value = state.dbUrl || '';
+        if (state.dbUrl) {
+          setDbBadge('DB Linked', 'ok');
         } else {
-          updateDbStatus('Local Mode', 'local');
+          setDbBadge('Local Mode', 'local');
         }
       }
 
-      function persistLocal(notify = false) {
-        syncFormToState();
+      function syncDomToRecord() {
+        const rec = state.records[state.activeKey];
+        if (!rec) return;
+
+        rec.empName = dom.empName.value.trim();
+        rec.empId = dom.empId.value.trim();
+        rec.empLocation = dom.empLocation.value.trim();
+        rec.empDept = dom.empDept.value.trim();
+        rec.rateNormal = dom.rateNormal.value;
+        rec.rateOT = dom.rateOT.value;
+        rec.rateSunday = dom.rateSunday.value;
+        rec.ratePHD = dom.ratePHD.value;
+        rec.allowance = dom.allowanceInput.value;
+        rec.deduction = dom.deductionInput.value;
+        state.dbUrl = dom.dbUrlInput.value.trim();
+
+        dom.daysTableBody.querySelectorAll('.day-input').forEach((inp) => {
+          const d = inp.dataset.day;
+          const f = inp.dataset.field;
+          if (!rec.days[d]) rec.days[d] = {};
+          rec.days[d][f] = inp.value;
+        });
+      }
+
+      function saveToLocalStorage(showFeedback = false) {
+        syncDomToRecord();
         try {
-          localStorage.setItem(DB_URL_KEY, appState.dbUrl);
+          localStorage.setItem(DB_URL_KEY, state.dbUrl);
           localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            activeKey: appState.activeKey,
-            records: appState.records
+            activeKey: state.activeKey,
+            records: state.records
           }));
-          updateHistoryCounter();
-          if (notify) {
-            showToast(`Saved ${formatMonthKey(appState.activeKey)} locally!`);
+          dom.historyCount.textContent = Object.keys(state.records).length;
+          if (showFeedback) {
+            notify(`Saved ${keyToLabel(state.activeKey)} locally!`);
           }
         } catch (err) {
-          showToast('Unable to save data locally.', true);
+          notify('Failed to save to localStorage.', true);
         }
       }
 
-      function updateHistoryCounter() {
-        els.historyCount.textContent = Object.keys(appState.records).length;
-      }
-
-      function renderMonthDropdown() {
-        const keys = Object.keys(appState.records).sort();
-        els.monthSelector.innerHTML = '';
-        keys.forEach((key) => {
+      function renderMonthSelector() {
+        const sortedKeys = Object.keys(state.records).sort();
+        dom.monthSelector.innerHTML = '';
+        sortedKeys.forEach((key) => {
           const opt = document.createElement('option');
           opt.value = key;
-          opt.textContent = formatMonthKey(key);
-          if (key === appState.activeKey) opt.selected = true;
-          els.monthSelector.appendChild(opt);
+          opt.textContent = keyToLabel(key);
+          if (key === state.activeKey) opt.selected = true;
+          dom.monthSelector.appendChild(opt);
         });
-        els.displayMonthYear.textContent = formatMonthKey(appState.activeKey);
-        updateHistoryCounter();
+        dom.displayMonthYear.textContent = keyToLabel(state.activeKey);
+        dom.historyCount.textContent = sortedKeys.length;
       }
 
-      function renderActiveSheet() {
-        const rec = appState.records[appState.activeKey] || createEmptyRecord(appState.activeKey);
-        appState.records[appState.activeKey] = rec;
+      function renderSheet() {
+        const rec = state.records[state.activeKey] || buildEmptyMonthRecord(state.activeKey);
+        state.records[state.activeKey] = rec;
 
-        els.displayMonthYear.textContent = formatMonthKey(appState.activeKey);
-        els.empName.value = rec.empName || '';
-        els.empId.value = rec.empId || '';
-        els.empLocation.value = rec.empLocation || '';
-        els.empDept.value = rec.empDept || '';
-        els.rateNormal.value = rec.rateNormal ?? '9';
-        els.rateOT.value = rec.rateOT ?? '13.5';
-        els.rateSunday.value = rec.rateSunday ?? '13.5';
-        els.ratePHD.value = rec.ratePHD ?? '13.5';
-        els.allowanceInput.value = rec.allowance || '';
-        els.deductionInput.value = rec.deduction || '';
+        dom.displayMonthYear.textContent = keyToLabel(state.activeKey);
+        dom.empName.value = rec.empName || '';
+        dom.empId.value = rec.empId || '';
+        dom.empLocation.value = rec.empLocation || '';
+        dom.empDept.value = rec.empDept || '';
+        dom.rateNormal.value = rec.rateNormal ?? '9';
+        dom.rateOT.value = rec.rateOT ?? '13.5';
+        dom.rateSunday.value = rec.rateSunday ?? '13.5';
+        dom.ratePHD.value = rec.ratePHD ?? '13.5';
+        dom.allowanceInput.value = rec.allowance || '';
+        dom.deductionInput.value = rec.deduction || '';
 
-        const [yStr, mStr] = appState.activeKey.split('-');
+        const [yStr, mStr] = state.activeKey.split('-');
         const year = parseInt(yStr, 10);
         const monthIdx = parseInt(mStr, 10);
-        const daysInMonth = getDaysCount(year, monthIdx);
+        const totalDays = daysInMonth(year, monthIdx);
 
-        els.daysTableBody.innerHTML = '';
+        dom.daysTableBody.innerHTML = '';
 
-        for (let day = 1; day <= daysInMonth; day++) {
-          const dow = new Date(year, monthIdx, day).getDay();
-          const dayShort = WEEKDAYS[dow];
-          const isSunday = dow === 0;
-          const dRow = rec.days[day] || { normal: '', ot: '', sunday: '', phd: '', remarks: '' };
+        for (let day = 1; day <= totalDays; day++) {
+          const weekdayIndex = new Date(year, monthIdx, day).getDay();
+          const dayName = WEEKDAYS[weekdayIndex];
+          const isSunday = weekdayIndex === 0;
+          const rowData = rec.days[day] || { normal: '', ot: '', sunday: '', phd: '', remarks: '' };
 
           const tr = document.createElement('tr');
           tr.dataset.day = day;
@@ -1111,271 +1130,332 @@
           tr.innerHTML = `
             <td class="py-1 px-1.5 font-semibold text-slate-800 whitespace-nowrap text-left sm:text-center">
               <span>Day ${day}</span>
-              <span class="text-[10px] ml-1 px-1 rounded ${isSunday ? 'bg-amber-200/80 text-amber-950 font-bold' : 'text-slate-400'}">${dayShort}</span>
+              <span class="text-[10px] ml-1 px-1 rounded ${isSunday ? 'bg-amber-200/80 text-amber-950 font-bold' : 'text-slate-400'}">${dayName}</span>
             </td>
             <td class="p-0.5">
-              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="normal" value="${dRow.normal}"
+              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="normal" value="${rowData.normal}"
                 class="day-input cell-input text-center py-1 px-1 font-medium rounded" />
             </td>
             <td class="p-0.5">
-              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="ot" value="${dRow.ot}"
+              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="ot" value="${rowData.ot}"
                 class="day-input cell-input text-center py-1 px-1 font-medium rounded" />
             </td>
             <td class="p-0.5">
-              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="sunday" value="${dRow.sunday}"
+              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="sunday" value="${rowData.sunday}"
                 class="day-input cell-input text-center py-1 px-1 font-medium rounded" />
             </td>
             <td class="p-0.5">
-              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="phd" value="${dRow.phd}"
+              <input type="number" step="0.25" min="0" max="24" inputmode="decimal" data-day="${day}" data-field="phd" value="${rowData.phd}"
                 class="day-input cell-input text-center py-1 px-1 font-medium rounded" />
             </td>
             <td id="dayHrs-${day}" class="py-1 px-1 font-bold text-slate-700 bg-slate-50/90">0.00</td>
             <td id="daySal-${day}" class="py-1 px-1.5 font-bold text-slate-900 bg-slate-50/90">0.00</td>
             <td class="p-0.5">
-              <input type="text" data-day="${day}" data-field="remarks" value="${escapeHtml(dRow.remarks)}"
+              <input type="text" data-day="${day}" data-field="remarks" value="${escapeHtml(rowData.remarks)}"
                 class="day-input cell-input text-left py-1 px-1.5 text-slate-700 rounded" />
             </td>
           `;
 
-          els.daysTableBody.appendChild(tr);
+          dom.daysTableBody.appendChild(tr);
         }
 
-        updateRestPathPreview();
-        recalculateTotals();
+        updatePathPreview();
+        recalculateAll();
       }
 
-      function syncFormToState() {
-        const rec = appState.records[appState.activeKey];
-        if (!rec) return;
+      function recalculateAll() {
+        const rateN = parseFloat(dom.rateNormal.value) || 0;
+        const rateOT = parseFloat(dom.rateOT.value) || 0;
+        const rateSun = parseFloat(dom.rateSunday.value) || 0;
+        const ratePHD = parseFloat(dom.ratePHD.value) || 0;
 
-        rec.empName = els.empName.value.trim();
-        rec.empId = els.empId.value.trim();
-        rec.empLocation = els.empLocation.value.trim();
-        rec.empDept = els.empDept.value.trim();
-        rec.rateNormal = els.rateNormal.value;
-        rec.rateOT = els.rateOT.value;
-        rec.rateSunday = els.rateSunday.value;
-        rec.ratePHD = els.ratePHD.value;
-        rec.allowance = els.allowanceInput.value;
-        rec.deduction = els.deductionInput.value;
-        appState.dbUrl = els.dbUrlInput.value.trim();
+        let totalN = 0, totalOT = 0, totalSun = 0, totalPHD = 0, gross = 0;
 
-        els.daysTableBody.querySelectorAll('.day-input').forEach((inp) => {
-          const d = inp.dataset.day;
-          const f = inp.dataset.field;
-          if (!rec.days[d]) rec.days[d] = {};
-          rec.days[d][f] = inp.value;
-        });
-      }
-
-      function recalculateTotals() {
-        const rN = parseFloat(els.rateNormal.value) || 0;
-        const rOT = parseFloat(els.rateOT.value) || 0;
-        const rSun = parseFloat(els.rateSunday.value) || 0;
-        const rPHD = parseFloat(els.ratePHD.value) || 0;
-
-        let totN = 0, totOT = 0, totSun = 0, totPHD = 0, gross = 0;
-
-        els.daysTableBody.querySelectorAll('tr').forEach((tr) => {
+        dom.daysTableBody.querySelectorAll('tr').forEach((tr) => {
           const day = tr.dataset.day;
-          const n = parseFloat(tr.querySelector('[data-field="normal"]').value) || 0;
-          const ot = parseFloat(tr.querySelector('[data-field="ot"]').value) || 0;
-          const sun = parseFloat(tr.querySelector('[data-field="sunday"]').value) || 0;
-          const phd = parseFloat(tr.querySelector('[data-field="phd"]').value) || 0;
+          const hN = parseFloat(tr.querySelector('[data-field="normal"]').value) || 0;
+          const hOT = parseFloat(tr.querySelector('[data-field="ot"]').value) || 0;
+          const hSun = parseFloat(tr.querySelector('[data-field="sunday"]').value) || 0;
+          const hPHD = parseFloat(tr.querySelector('[data-field="phd"]').value) || 0;
 
-          const dayHrs = n + ot + sun + phd;
-          const daySal = (n * rN) + (ot * rOT) + (sun * rSun) + (phd * rPHD);
+          const dayHours = hN + hOT + hSun + hPHD;
+          const daySalary = (hN * rateN) + (hOT * rateOT) + (hSun * rateSun) + (hPHD * ratePHD);
 
-          totN += n;
-          totOT += ot;
-          totSun += sun;
-          totPHD += phd;
-          gross += daySal;
+          totalN += hN;
+          totalOT += hOT;
+          totalSun += hSun;
+          totalPHD += hPHD;
+          gross += daySalary;
 
-          const hrsCell = document.getElementById(`dayHrs-${day}`);
-          const salCell = document.getElementById(`daySal-${day}`);
-          if (hrsCell) hrsCell.textContent = dayHrs.toFixed(2);
-          if (salCell) salCell.textContent = daySal.toFixed(2);
+          const hrsEl = document.getElementById(`dayHrs-${day}`);
+          const salEl = document.getElementById(`daySal-${day}`);
+          if (hrsEl) hrsEl.textContent = dayHours.toFixed(2);
+          if (salEl) salEl.textContent = daySalary.toFixed(2);
         });
 
-        const grandHrs = totN + totOT + totSun + totPHD;
-        const allowance = parseFloat(els.allowanceInput.value) || 0;
-        const deduction = parseFloat(els.deductionInput.value) || 0;
+        const grandHours = totalN + totalOT + totalSun + totalPHD;
+        const allowance = parseFloat(dom.allowanceInput.value) || 0;
+        const deduction = parseFloat(dom.deductionInput.value) || 0;
         const net = Math.max(0, gross + allowance - deduction);
 
-        els.sumNormalHrs.textContent = totN.toFixed(2);
-        els.sumOTHrs.textContent = totOT.toFixed(2);
-        els.sumSundayHrs.textContent = totSun.toFixed(2);
-        els.sumPHDHrs.textContent = totPHD.toFixed(2);
-        els.grandTotalHrs.textContent = grandHrs.toFixed(2);
-        els.grossSalary.textContent = gross.toFixed(2);
-        els.netPayable.textContent = net.toFixed(2);
+        dom.sumNormalHrs.textContent = totalN.toFixed(2);
+        dom.sumOTHrs.textContent = totalOT.toFixed(2);
+        dom.sumSundayHrs.textContent = totalSun.toFixed(2);
+        dom.sumPHDHrs.textContent = totalPHD.toFixed(2);
+        dom.grandTotalHrs.textContent = grandHours.toFixed(2);
+        dom.grossSalary.textContent = gross.toFixed(2);
+        dom.netPayable.textContent = net.toFixed(2);
 
-        updateRestPathPreview();
-        persistLocal(false);
+        updatePathPreview();
+        saveToLocalStorage(false);
       }
 
-      // Firebase Realtime Database REST (.json) Operations
-      function getBaseDbUrl() {
-        return (els.dbUrlInput.value || '').trim().replace(/\/+$/, '');
+      // Firebase Realtime Database (.json REST) Sync
+      function baseDbUrl() {
+        return (dom.dbUrlInput.value || '').trim().replace(/\/+$/, '');
       }
 
-      function getRecordRestEndpoint() {
-        const base = getBaseDbUrl();
+      function recordEndpointUrl() {
+        const base = baseDbUrl();
         if (!base) return null;
-        return `${base}/salary_records/${getSanitizedEmpId()}/${getMonthSlug()}.json`;
+        return `${base}/salary_records/${sanitizeEmpId()}/${monthSlug()}.json`;
       }
 
-      async function syncRemoteModuleControl() {
-        const base = getBaseDbUrl();
+      async function syncModuleControlFromCloud() {
+        const base = baseDbUrl();
         if (!base) return;
         try {
-          const res = await fetch(`${base}/app_control/modules/salary.json`);
-          if (!res.ok) return;
-          const ctrl = await res.json();
-          if (!ctrl) return;
+          const resp = await fetch(`${base}/app_control/modules/salary.json`);
+          if (!resp.ok) return;
+          const cfg = await resp.json();
+          if (!cfg) return;
 
-          if (ctrl.enabled === false) {
-            els.appWrapper.classList.add('hidden');
-            els.moduleLockedBanner.classList.remove('hidden');
+          if (cfg.enabled === false) {
+            dom.appWrapper.classList.add('hidden');
+            dom.moduleLockedBanner.classList.remove('hidden');
             return;
           } else {
-            els.appWrapper.classList.remove('hidden');
-            els.moduleLockedBanner.classList.add('hidden');
+            dom.appWrapper.classList.remove('hidden');
+            dom.moduleLockedBanner.classList.add('hidden');
           }
 
-          if (ctrl.title) {
-            els.sheetBannerTitle.textContent = ctrl.title;
+          if (cfg.title) {
+            dom.sheetBannerTitle.textContent = cfg.title;
           }
 
-          if (ctrl.allowPdfDownload === false) {
-            appState.allowPdf = false;
-            els.downloadPdfBtn.classList.add('hidden');
+          if (cfg.allowPdfDownload === false) {
+            state.allowPdf = false;
+            dom.downloadPdfBtn.classList.add('hidden');
           } else {
-            appState.allowPdf = true;
-            els.downloadPdfBtn.classList.remove('hidden');
+            state.allowPdf = true;
+            dom.downloadPdfBtn.classList.remove('hidden');
           }
 
-          if (ctrl.defaultRates) {
-            if (ctrl.defaultRates.normal !== undefined) els.rateNormal.value = ctrl.defaultRates.normal;
-            if (ctrl.defaultRates.overtime !== undefined) els.rateOT.value = ctrl.defaultRates.overtime;
-            if (ctrl.defaultRates.sunday !== undefined) els.rateSunday.value = ctrl.defaultRates.sunday;
-            if (ctrl.defaultRates.phd !== undefined) els.ratePHD.value = ctrl.defaultRates.phd;
-            recalculateTotals();
+          if (cfg.defaultRates) {
+            if (cfg.defaultRates.normal !== undefined) dom.rateNormal.value = cfg.defaultRates.normal;
+            if (cfg.defaultRates.overtime !== undefined) dom.rateOT.value = cfg.defaultRates.overtime;
+            if (cfg.defaultRates.sunday !== undefined) dom.rateSunday.value = cfg.defaultRates.sunday;
+            if (cfg.defaultRates.phd !== undefined) dom.ratePHD.value = cfg.defaultRates.phd;
+            recalculateAll();
           }
 
-          updateDbStatus('Config Synced ✓', 'ok');
-          showToast('Remote module config synced!');
+          setDbBadge('Config Synced ✓', 'ok');
+          notify('Remote module config synced!');
         } catch (err) {
-          console.warn('Control sync skipped:', err);
+          console.warn('Control fetch warning:', err);
         }
       }
 
-      async function saveRecordToCloud() {
-        persistLocal(false);
-        const endpoint = getRecordRestEndpoint();
+      async function pushRecordToCloud() {
+        saveToLocalStorage(false);
+        const endpoint = recordEndpointUrl();
         if (!endpoint) {
-          els.dbConfigBar.classList.remove('hidden');
-          els.dbUrlInput.focus();
-          showToast('Paste your Firebase Realtime DB URL first.', true);
+          dom.dbConfigBar.classList.remove('hidden');
+          dom.dbUrlInput.focus();
+          notify('Enter a Firebase Realtime DB URL first.', true);
           return;
         }
 
-        const rec = appState.records[appState.activeKey];
-        const payload = {
+        const rec = state.records[state.activeKey];
+        const body = {
           ...rec,
-          monthLabel: formatMonthKey(appState.activeKey),
+          monthLabel: keyToLabel(state.activeKey),
           ownerBrand: 'Ssb-dev-hasan',
           summary: {
-            totalNormalHours: els.sumNormalHrs.textContent,
-            totalOvertimeHours: els.sumOTHrs.textContent,
-            totalSundayHours: els.sumSundayHrs.textContent,
-            totalPHDHours: els.sumPHDHrs.textContent,
-            grandTotalHours: els.grandTotalHrs.textContent,
-            grossSalary: els.grossSalary.textContent,
-            netPayable: els.netPayable.textContent
+            totalNormalHours: dom.sumNormalHrs.textContent,
+            totalOvertimeHours: dom.sumOTHrs.textContent,
+            totalSundayHours: dom.sumSundayHrs.textContent,
+            totalPHDHours: dom.sumPHDHrs.textContent,
+            grandTotalHours: dom.grandTotalHrs.textContent,
+            grossSalary: dom.grossSalary.textContent,
+            netPayable: dom.netPayable.textContent
           },
           updatedAt: new Date().toISOString()
         };
 
         try {
-          updateDbStatus('Syncing...', 'local');
-          const res = await fetch(endpoint, {
+          setDbBadge('Syncing...', 'local');
+          const resp = await fetch(endpoint, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(body)
           });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          updateDbStatus('Cloud Synced ✓', 'ok');
-          showToast('Saved & synced to Firebase Realtime Database!');
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          setDbBadge('Cloud Synced ✓', 'ok');
+          notify('Synced record to Firebase Realtime DB!');
         } catch (err) {
-          console.error(err);
-          updateDbStatus('Sync Failed', 'err');
-          showToast(`Cloud sync failed: ${err.message}`, true);
+          console.error('Cloud push error:', err);
+          setDbBadge('Sync Failed', 'err');
+          notify(`Cloud sync failed: ${err.message}`, true);
         }
       }
 
-      async function loadRecordFromCloud(silentIfMissing = false) {
-        const endpoint = getRecordRestEndpoint();
+      async function pullRecordFromCloud(quietIfEmpty = false) {
+        const endpoint = recordEndpointUrl();
         if (!endpoint) {
-          if (!silentIfMissing) {
-            els.dbConfigBar.classList.remove('hidden');
-            showToast('Paste your Firebase Realtime DB URL first.', true);
+          if (!quietIfEmpty) {
+            dom.dbConfigBar.classList.remove('hidden');
+            notify('Enter a Firebase Realtime DB URL first.', true);
           }
           return;
         }
 
         try {
-          updateDbStatus('Loading...', 'local');
-          const res = await fetch(endpoint);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-          if (!data) {
-            updateDbStatus('DB Linked', 'ok');
-            if (!silentIfMissing) {
-              showToast('No cloud record found for this ID & Month.');
+          setDbBadge('Loading...', 'local');
+          const resp = await fetch(endpoint);
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+          const cloudData = await resp.json();
+          if (!cloudData) {
+            setDbBadge('DB Linked', 'ok');
+            if (!quietIfEmpty) {
+              notify('No cloud record found for this ID & Month.');
             }
             return;
           }
 
-          const current = appState.records[appState.activeKey];
-          appState.records[appState.activeKey] = {
+          const current = state.records[state.activeKey];
+          state.records[state.activeKey] = {
             ...current,
-            ...data,
-            key: appState.activeKey,
-            days: { ...current.days, ...(data.days || {}) }
+            ...cloudData,
+            key: state.activeKey,
+            days: { ...current.days, ...(cloudData.days || {}) }
           };
-          renderActiveSheet();
-          persistLocal(false);
-          updateDbStatus('Loaded ✓', 'ok');
-          showToast('Loaded record from Firebase Realtime DB!');
+          renderSheet();
+          saveToLocalStorage(false);
+          setDbBadge('Loaded ✓', 'ok');
+          notify('Loaded record from Firebase Realtime DB!');
         } catch (err) {
-          console.error(err);
-          updateDbStatus('Load Error', 'err');
-          if (!silentIfMissing) {
-            showToast(`Cloud load error: ${err.message}`, true);
+          console.error('Cloud pull error:', err);
+          setDbBadge('Load Error', 'err');
+          if (!quietIfEmpty) {
+            notify(`Cloud load error: ${err.message}`, true);
           }
         }
       }
 
       // WebView-Friendly A4 PDF Export with Diagonal + Footer 'Ssb-dev-hasan' Watermark on Every Page
-      async function downloadStampedA4Pdf() {
-        if (!appState.allowPdf) return;
-        persistLocal(false);
+      function isInsideAppWebView() {
+        const ua = navigator.userAgent || '';
+        const isAndroidWebView = /\bwv\b|WebView/i.test(ua) || (/Android/i.test(ua) && !/Chrome\/[.0-9]* Mobile/i.test(ua) && /Version\/[.0-9]*/i.test(ua));
+        const isIosWebView = /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(ua);
+        const isStandalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+        return Boolean(isAndroidWebView || isIosWebView || isStandalone || window.Android);
+      }
 
-        const safeEmp = (els.empName.value || 'Employee').replace(/[^a-zA-Z0-9_-]+/g, '_');
-        const safeMonth = getMonthSlug();
-        const filename = `${safeEmp}_${safeMonth}_Salary_Record.pdf`;
+      function buildShareableBrowserUrl() {
+        const shareUrl = new URL(window.location.href);
+        if (dom.empId.value.trim()) shareUrl.searchParams.set('id', dom.empId.value.trim());
+        if (dom.empName.value.trim()) shareUrl.searchParams.set('name', dom.empName.value.trim());
+        if (dom.empLocation.value.trim()) shareUrl.searchParams.set('loc', dom.empLocation.value.trim());
+        if (dom.empDept.value.trim()) shareUrl.searchParams.set('dept', dom.empDept.value.trim());
+        shareUrl.searchParams.set('month', keyToLabel(state.activeKey));
+        if (state.dbUrl) shareUrl.searchParams.set('db', state.dbUrl);
+        shareUrl.searchParams.set('auto_pdf', '1');
+        return shareUrl.toString();
+      }
+
+      function launchExternalBrowser(targetUrl, showNotice = true) {
+        const finalUrl = targetUrl || buildShareableBrowserUrl();
+        const isAndroid = /Android/i.test(navigator.userAgent || '');
+
+        if (showNotice) {
+          notify('Launching external browser to complete PDF download...');
+        }
+
+        if (isAndroid && /^https?:\/\//i.test(finalUrl)) {
+          const scheme = finalUrl.startsWith('https://') ? 'https' : 'http';
+          const withoutScheme = finalUrl.replace(/^https?:\/\//i, '');
+          const chromeIntentUrl = `intent://${withoutScheme}#Intent;scheme=${scheme};package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(finalUrl)};end`;
+
+          try {
+            window.location.href = chromeIntentUrl;
+            setTimeout(() => {
+              try {
+                const win = window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                if (!win) {
+                  const anchor = document.createElement('a');
+                  anchor.href = finalUrl;
+                  anchor.target = '_blank';
+                  anchor.rel = 'noopener noreferrer';
+                  document.body.appendChild(anchor);
+                  anchor.click();
+                  document.body.removeChild(anchor);
+                }
+              } catch (fallbackErr) {
+                console.warn('Secondary browser fallback warning:', fallbackErr);
+              }
+            }, 650);
+            return;
+          } catch (intentErr) {
+            console.warn('Android intent launch warning:', intentErr);
+          }
+        }
+
+        try {
+          const openedWin = window.open(finalUrl, '_blank', 'noopener,noreferrer');
+          if (!openedWin) {
+            const anchor = document.createElement('a');
+            anchor.href = finalUrl;
+            anchor.target = '_blank';
+            anchor.rel = 'noopener noreferrer';
+            document.body.appendChild(anchor);
+            anchor.click();
+            document.body.removeChild(anchor);
+          }
+        } catch (err) {
+          console.warn('External browser open error:', err);
+          window.location.href = finalUrl;
+        }
+      }
+
+      async function downloadPDF() {
+        if (!state.allowPdf) return;
+        saveToLocalStorage(false);
+
+        if (state.dbUrl && dom.empId.value.trim()) {
+          pushRecordToCloud().catch(() => {});
+        }
+
+        // Inside an app WebView, automatically launch external browser so PDF completes reliably
+        if (isInsideAppWebView()) {
+          const browserUrl = buildShareableBrowserUrl();
+          notify('App WebView detected — opening external browser for PDF export...');
+          launchExternalBrowser(browserUrl, false);
+          return;
+        }
+
+        const safeEmp = (dom.empName.value || 'Employee').replace(/[^a-zA-Z0-9_-]+/g, '_');
+        const filename = `${safeEmp}_${monthSlug()}_Salary_Record.pdf`;
 
         if (typeof html2pdf === 'undefined') {
           window.print();
           return;
         }
 
-        const origLabel = els.pdfBtnLabel.textContent;
-        els.pdfBtnLabel.textContent = 'Generating PDF...';
-        els.downloadPdfBtn.disabled = true;
-        els.printableSheet.classList.add('pdf-export-mode');
+        const prevLabel = dom.pdfBtnLabel.textContent;
+        dom.pdfBtnLabel.textContent = 'Generating PDF...';
+        dom.downloadPdfBtn.disabled = true;
+        dom.printableSheet.classList.add('pdf-export-mode');
 
         try {
           const worker = html2pdf().set({
@@ -1385,7 +1465,7 @@
             html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-          }).from(els.printableSheet).toPdf();
+          }).from(dom.printableSheet).toPdf();
 
           const pdf = await worker.get('pdf');
           const totalPages = pdf.internal.getNumberOfPages();
@@ -1396,7 +1476,7 @@
             const pageW = pdf.internal.pageSize.getWidth();
             const pageH = pdf.internal.pageSize.getHeight();
 
-            // Diagonal watermark across center of page
+            // Diagonal center watermark on every page
             pdf.saveGraphicsState();
             if (typeof pdf.GState === 'function') {
               pdf.setGState(new pdf.GState({ opacity: 0.11 }));
@@ -1410,7 +1490,7 @@
             });
             pdf.restoreGraphicsState();
 
-            // Footer owner watermark on every page
+            // Footer watermark on every page
             pdf.saveGraphicsState();
             if (typeof pdf.GState === 'function') {
               pdf.setGState(new pdf.GState({ opacity: 0.65 }));
@@ -1424,230 +1504,223 @@
             pdf.restoreGraphicsState();
           }
 
-          // Generate Data URI so WebView can download via anchor element even if blob: is restricted
-          const pdfDataUri = pdf.output('datauristring');
+          const pdfBlob = pdf.output('blob');
+          const blobUrl = URL.createObjectURL(pdfBlob);
           const link = document.createElement('a');
-          link.href = pdfDataUri;
+          link.href = blobUrl;
           link.download = filename;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
 
-          showToast(`PDF ready: ${filename} (Tap "Open in Browser" if WebView blocks save)`);
+          notify(`PDF generated: ${filename}`);
         } catch (err) {
           console.error('PDF export error:', err);
-          showToast('Opening print/save dialog...', true);
+          notify('Opening system Print / Save as PDF...', true);
           window.print();
         } finally {
-          els.printableSheet.classList.remove('pdf-export-mode');
-          els.pdfBtnLabel.textContent = origLabel;
-          els.downloadPdfBtn.disabled = false;
+          dom.printableSheet.classList.remove('pdf-export-mode');
+          dom.pdfBtnLabel.textContent = prevLabel;
+          dom.downloadPdfBtn.disabled = false;
         }
       }
 
-      // Open current module with current state in external browser (helps WebView users save PDFs)
-      function openInExternalBrowser() {
-        persistLocal(false);
-        const url = new URL(window.location.href);
-        if (els.empId.value.trim()) url.searchParams.set('id', els.empId.value.trim());
-        if (els.empName.value.trim()) url.searchParams.set('name', els.empName.value.trim());
-        if (els.empLocation.value.trim()) url.searchParams.set('loc', els.empLocation.value.trim());
-        if (els.empDept.value.trim()) url.searchParams.set('dept', els.empDept.value.trim());
-        url.searchParams.set('month', formatMonthKey(appState.activeKey));
-        if (appState.dbUrl) url.searchParams.set('db', appState.dbUrl);
-
-        window.open(url.toString(), '_blank', 'noopener,noreferrer');
+      // Open current state in external browser (Android intent:// Chrome with target="_blank" anchor fallback)
+      function openInBrowser() {
+        saveToLocalStorage(false);
+        launchExternalBrowser(buildShareableBrowserUrl(), true);
       }
 
-      // History Modal Rendering
-      function renderHistoryModal() {
-        const keys = Object.keys(appState.records).sort().reverse();
-        els.historyList.innerHTML = '';
+      // History Modal
+      function renderHistory() {
+        const keys = Object.keys(state.records).sort().reverse();
+        dom.historyList.innerHTML = '';
 
         keys.forEach((key) => {
-          const rec = appState.records[key];
-          const isCurrent = key === appState.activeKey;
-          const card = document.createElement('div');
-          card.className = `p-3 rounded-xl border ${isCurrent ? 'border-blue-400 bg-blue-50/70' : 'border-slate-200 bg-slate-50'} flex flex-wrap items-center justify-between gap-2`;
+          const rec = state.records[key];
+          const active = key === state.activeKey;
+          const item = document.createElement('div');
+          item.className = `p-3 rounded-xl border ${active ? 'border-blue-400 bg-blue-50/70' : 'border-slate-200 bg-slate-50'} flex flex-wrap items-center justify-between gap-2`;
 
-          card.innerHTML = `
+          item.innerHTML = `
             <div>
               <div class="flex items-center gap-2">
-                <span class="font-extrabold text-sm text-slate-900">${formatMonthKey(key)}</span>
-                ${isCurrent ? '<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white">Active</span>' : ''}
+                <span class="font-extrabold text-sm text-slate-900">${keyToLabel(key)}</span>
+                ${active ? '<span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-600 text-white">Active</span>' : ''}
               </div>
               <div class="text-xs text-slate-600 mt-0.5">
                 Name: <strong>${escapeHtml(rec.empName || 'Not Set')}</strong> • ID: <strong>${escapeHtml(rec.empId || '-')}</strong>
               </div>
             </div>
             <div class="flex items-center gap-1.5">
-              <button type="button" data-action="open" data-key="${key}" class="px-3 py-1.5 rounded-lg bg-[#0066e6] hover:bg-[#0055c4] text-white text-xs font-bold cursor-pointer">Open</button>
-              <button type="button" data-action="delete" data-key="${key}" class="px-2.5 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold cursor-pointer">Delete</button>
+              <button type="button" data-action="load" data-key="${key}" class="px-3 py-1.5 rounded-lg bg-[#0066e6] hover:bg-[#0055c4] text-white text-xs font-bold cursor-pointer">Open</button>
+              <button type="button" data-action="remove" data-key="${key}" class="px-2.5 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-bold cursor-pointer">Delete</button>
             </div>
           `;
-          els.historyList.appendChild(card);
+          dom.historyList.appendChild(item);
         });
       }
 
-      function openModal(modal) {
+      function showModal(modal) {
         modal.classList.remove('hidden');
         modal.classList.add('flex');
       }
 
-      function closeAllModals() {
-        [els.addMonthModal, els.historyModal].forEach((m) => {
+      function hideModals() {
+        [dom.addMonthModal, dom.historyModal].forEach((m) => {
           m.classList.add('hidden');
           m.classList.remove('flex');
         });
       }
 
-      // Wire Up Event Listeners
-      els.daysTableBody.addEventListener('input', (e) => {
+      // Event Bindings
+      dom.daysTableBody.addEventListener('input', (e) => {
         if (e.target.classList.contains('day-input')) {
-          recalculateTotals();
+          recalculateAll();
         }
       });
 
       [
-        els.empName, els.empId, els.empLocation, els.empDept,
-        els.rateNormal, els.rateOT, els.rateSunday, els.ratePHD,
-        els.allowanceInput, els.deductionInput
-      ].forEach((input) => input.addEventListener('input', recalculateTotals));
+        dom.empName, dom.empId, dom.empLocation, dom.empDept,
+        dom.rateNormal, dom.rateOT, dom.rateSunday, dom.ratePHD,
+        dom.allowanceInput, dom.deductionInput
+      ].forEach((el) => el.addEventListener('input', recalculateAll));
 
-      els.monthSelector.addEventListener('change', (e) => {
-        persistLocal(false);
-        appState.activeKey = e.target.value;
-        renderActiveSheet();
-        if (getBaseDbUrl()) {
-          loadRecordFromCloud(true);
+      dom.monthSelector.addEventListener('change', (e) => {
+        saveToLocalStorage(false);
+        state.activeKey = e.target.value;
+        renderSheet();
+        if (baseDbUrl()) {
+          pullRecordFromCloud(true);
         }
       });
 
-      els.toggleDbBarBtn.addEventListener('click', () => {
-        els.dbConfigBar.classList.toggle('hidden');
+      dom.toggleDbBarBtn.addEventListener('click', () => {
+        dom.dbConfigBar.classList.toggle('hidden');
       });
 
-      els.dbUrlInput.addEventListener('change', () => {
-        appState.dbUrl = els.dbUrlInput.value.trim();
-        localStorage.setItem(DB_URL_KEY, appState.dbUrl);
-        updateDbStatus(appState.dbUrl ? 'DB Linked' : 'Local Mode', appState.dbUrl ? 'ok' : 'local');
+      dom.dbUrlInput.addEventListener('change', () => {
+        state.dbUrl = dom.dbUrlInput.value.trim();
+        localStorage.setItem(DB_URL_KEY, state.dbUrl);
+        setDbBadge(state.dbUrl ? 'DB Linked' : 'Local Mode', state.dbUrl ? 'ok' : 'local');
       });
 
-      els.saveLocalBtn.addEventListener('click', () => persistLocal(true));
-      els.cloudSyncBtn.addEventListener('click', saveRecordToCloud);
-      els.cloudLoadBtn.addEventListener('click', () => loadRecordFromCloud(false));
-      els.syncControlBtn.addEventListener('click', syncRemoteModuleControl);
-      els.downloadPdfBtn.addEventListener('click', downloadStampedA4Pdf);
-      els.openInBrowserBtn.addEventListener('click', openInExternalBrowser);
+      dom.saveLocalBtn.addEventListener('click', () => saveToLocalStorage(true));
+      dom.cloudSyncBtn.addEventListener('click', pushRecordToCloud);
+      dom.cloudLoadBtn.addEventListener('click', () => pullRecordFromCloud(false));
+      dom.syncControlBtn.addEventListener('click', syncModuleControlFromCloud);
+      dom.downloadPdfBtn.addEventListener('click', downloadPDF);
+      dom.openInBrowserBtn.addEventListener('click', openInBrowser);
 
-      els.fillMonSatBtn.addEventListener('click', () => {
-        const [yStr, mStr] = appState.activeKey.split('-');
+      dom.fillMonSatBtn.addEventListener('click', () => {
+        const [yStr, mStr] = state.activeKey.split('-');
         const y = parseInt(yStr, 10);
         const m = parseInt(mStr, 10);
-        els.daysTableBody.querySelectorAll('tr').forEach((tr) => {
+        dom.daysTableBody.querySelectorAll('tr').forEach((tr) => {
           const day = parseInt(tr.dataset.day, 10);
           const dow = new Date(y, m, day).getDay();
-          const normalInp = tr.querySelector('[data-field="normal"]');
-          if (dow !== 0 && !normalInp.value) {
-            normalInp.value = '8';
+          const nInp = tr.querySelector('[data-field="normal"]');
+          if (dow !== 0 && !nInp.value) {
+            nInp.value = '8';
           }
         });
-        recalculateTotals();
-        showToast('Filled 8 Normal Hours on empty Mon–Sat days.');
+        recalculateAll();
+        notify('Filled 8 Normal Hours on empty Mon–Sat rows.');
       });
 
-      els.clearSheetBtn.addEventListener('click', () => {
-        els.daysTableBody.querySelectorAll('.day-input').forEach((inp) => {
+      dom.clearSheetBtn.addEventListener('click', () => {
+        dom.daysTableBody.querySelectorAll('.day-input').forEach((inp) => {
           inp.value = '';
         });
-        els.allowanceInput.value = '';
-        els.deductionInput.value = '';
-        recalculateTotals();
-        showToast('Cleared hours for this month.');
+        dom.allowanceInput.value = '';
+        dom.deductionInput.value = '';
+        recalculateAll();
+        notify('Cleared hours for current month.');
       });
 
-      els.openAddMonthBtn.addEventListener('click', () => {
-        const [yStr, mStr] = appState.activeKey.split('-');
+      dom.openAddMonthBtn.addEventListener('click', () => {
+        const [yStr, mStr] = state.activeKey.split('-');
         let nextM = parseInt(mStr, 10) + 1;
         let nextY = parseInt(yStr, 10);
         if (nextM > 11) {
           nextM = 0;
           nextY += 1;
         }
-        els.newMonthSelect.value = String(nextM);
-        els.newYearInput.value = String(nextY);
-        openModal(els.addMonthModal);
+        dom.newMonthSelect.value = String(nextM);
+        dom.newYearInput.value = String(nextY);
+        showModal(dom.addMonthModal);
       });
 
-      els.createMonthConfirmBtn.addEventListener('click', () => {
-        persistLocal(false);
-        const mIdx = parseInt(els.newMonthSelect.value, 10);
-        const yr = parseInt(els.newYearInput.value, 10);
+      dom.createMonthConfirmBtn.addEventListener('click', () => {
+        saveToLocalStorage(false);
+        const mIdx = parseInt(dom.newMonthSelect.value, 10);
+        const yr = parseInt(dom.newYearInput.value, 10);
         if (isNaN(yr) || yr < 2000 || yr > 2100) {
-          showToast('Enter a valid year between 2000 and 2100.', true);
+          notify('Please enter a valid year (2000–2100).', true);
           return;
         }
         const key = `${yr}-${String(mIdx).padStart(2, '0')}`;
-        if (!appState.records[key]) {
-          appState.records[key] = createEmptyRecord(
+        if (!state.records[key]) {
+          state.records[key] = buildEmptyMonthRecord(
             key,
-            els.copyProfileCheck.checked ? appState.records[appState.activeKey] : null
+            dom.copyProfileCheck.checked ? state.records[state.activeKey] : null
           );
         }
-        appState.activeKey = key;
-        renderMonthDropdown();
-        renderActiveSheet();
-        persistLocal(false);
-        closeAllModals();
-        showToast(`Switched to ${formatMonthKey(key)}`);
+        state.activeKey = key;
+        renderMonthSelector();
+        renderSheet();
+        saveToLocalStorage(false);
+        hideModals();
+        notify(`Switched to ${keyToLabel(key)}`);
       });
 
-      els.openHistoryBtn.addEventListener('click', () => {
-        persistLocal(false);
-        renderHistoryModal();
-        openModal(els.historyModal);
+      dom.openHistoryBtn.addEventListener('click', () => {
+        saveToLocalStorage(false);
+        renderHistory();
+        showModal(dom.historyModal);
       });
 
-      els.historyList.addEventListener('click', (e) => {
+      dom.historyList.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-action]');
         if (!btn) return;
         const action = btn.dataset.action;
         const key = btn.dataset.key;
 
-        if (action === 'open') {
-          appState.activeKey = key;
-          renderMonthDropdown();
-          renderActiveSheet();
-          persistLocal(false);
-          closeAllModals();
-          showToast(`Opened ${formatMonthKey(key)}`);
-        } else if (action === 'delete') {
-          if (Object.keys(appState.records).length <= 1) {
-            showToast('At least one month record must stay.', true);
+        if (action === 'load') {
+          state.activeKey = key;
+          renderMonthSelector();
+          renderSheet();
+          saveToLocalStorage(false);
+          hideModals();
+          notify(`Opened ${keyToLabel(key)}`);
+        } else if (action === 'remove') {
+          if (Object.keys(state.records).length <= 1) {
+            notify('At least one month record must remain.', true);
             return;
           }
-          delete appState.records[key];
-          if (appState.activeKey === key) {
-            appState.activeKey = Object.keys(appState.records).sort()[0];
+          delete state.records[key];
+          if (state.activeKey === key) {
+            state.activeKey = Object.keys(state.records).sort()[0];
           }
-          renderMonthDropdown();
-          renderActiveSheet();
-          persistLocal(false);
-          renderHistoryModal();
-          showToast(`Deleted ${formatMonthKey(key)}`);
+          renderMonthSelector();
+          renderSheet();
+          saveToLocalStorage(false);
+          renderHistory();
+          notify(`Deleted ${keyToLabel(key)}`);
         }
       });
 
-      els.exportBackupBtn.addEventListener('click', () => {
-        persistLocal(false);
-        const exportObj = {
+      dom.exportBackupBtn.addEventListener('click', () => {
+        saveToLocalStorage(false);
+        const backupData = {
           system: 'HASAN SYSTEM',
           owner: 'Ssb-dev-hasan',
-          dbUrl: appState.dbUrl,
+          dbUrl: state.dbUrl,
           exportedAt: new Date().toISOString(),
-          records: appState.records
+          records: state.records
         };
-        const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -1656,10 +1729,10 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast('Exported JSON backup!');
+        notify('Exported JSON backup!');
       });
 
-      els.importBackupFile.addEventListener('change', (e) => {
+      dom.importBackupFile.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -1667,51 +1740,60 @@
           try {
             const parsed = JSON.parse(evt.target.result);
             if (!parsed || typeof parsed.records !== 'object') {
-              throw new Error('Invalid backup format');
+              throw new Error('Invalid backup structure');
             }
-            appState.records = { ...appState.records, ...parsed.records };
-            if (parsed.dbUrl && !appState.dbUrl) {
-              appState.dbUrl = parsed.dbUrl;
-              els.dbUrlInput.value = appState.dbUrl;
+            state.records = { ...state.records, ...parsed.records };
+            if (parsed.dbUrl && !state.dbUrl) {
+              state.dbUrl = parsed.dbUrl;
+              dom.dbUrlInput.value = state.dbUrl;
             }
-            const sortedKeys = Object.keys(appState.records).sort();
-            appState.activeKey = sortedKeys[sortedKeys.length - 1];
-            renderMonthDropdown();
-            renderActiveSheet();
-            persistLocal(false);
-            renderHistoryModal();
-            showToast('Imported backup successfully!');
+            const sorted = Object.keys(state.records).sort();
+            state.activeKey = sorted[sorted.length - 1];
+            renderMonthSelector();
+            renderSheet();
+            saveToLocalStorage(false);
+            renderHistory();
+            notify('Imported JSON backup!');
           } catch (err) {
-            showToast('Invalid JSON backup file.', true);
+            notify('Invalid JSON backup file.', true);
           } finally {
-            els.importBackupFile.value = '';
+            dom.importBackupFile.value = '';
           }
         };
         reader.readAsText(file);
       });
 
       document.querySelectorAll('.close-modal').forEach((btn) => {
-        btn.addEventListener('click', closeAllModals);
+        btn.addEventListener('click', hideModals);
       });
 
-      [els.addMonthModal, els.historyModal].forEach((modal) => {
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) closeAllModals();
+      [dom.addMonthModal, dom.historyModal].forEach((m) => {
+        m.addEventListener('click', (e) => {
+          if (e.target === m) hideModals();
         });
       });
 
-      // Boot Application
-      loadState();
-      renderMonthDropdown();
-      renderActiveSheet();
+      // Startup Initialization
+      initStateFromStorageAndQuery();
+      renderMonthSelector();
+      renderSheet();
 
-      if (appState.dbUrl) {
-        syncRemoteModuleControl();
-        if (els.empId.value.trim()) {
-          loadRecordFromCloud(true);
-        }
+      if (state.dbUrl) {
+        syncModuleControlFromCloud().then(() => {
+          if (dom.empId.value.trim()) {
+            pullRecordFromCloud(true);
+          }
+        });
+      }
+
+      const startupParams = new URLSearchParams(window.location.search);
+      if (startupParams.get('auto_pdf') === '1' && !isInsideAppWebView()) {
+        setTimeout(() => {
+          downloadPDF();
+        }, 700);
       }
     })();
   </script>
 </body>
 </html>
+```
